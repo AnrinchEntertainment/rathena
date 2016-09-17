@@ -65,7 +65,7 @@
 #define HP_SP_TABLES
 
 /// Uncomment to enable VIP system.
-//#define VIP_ENABLE
+#define VIP_ENABLE
 
 /// Enable VIP script changes? (requires VIP_ENABLE)
 /// The primary effects of this are restrictions on non-VIP players, such as requiring
@@ -84,7 +84,7 @@
 /// When enabled, make sure there is value for 'packet_keys' of used packet version or
 /// defined 'packet_keys_use' in db/[import/]packet_db.txt.
 /// This requires PACKETVER 2011-08-17 or newer.
-#define PACKET_OBFUSCATION
+//#define PACKET_OBFUSCATION
 
 /**
  * No settings past this point
