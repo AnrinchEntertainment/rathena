@@ -408,7 +408,7 @@ struct mmo_charstatus {
 	uint32 child;
 
 	// Aura System
-	uint32 aura1, aura2;
+	int aura1, aura2;
 
 	unsigned int base_exp,job_exp;
 	int zeny;

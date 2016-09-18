@@ -9291,7 +9291,7 @@ ACMD_FUNC(auraset)
 	if(strcmp(aura_reg,"AURA2") == 0)
 		sd->status.aura2 = type;
 	
-	pc_setglobalreg(sd,aura_reg,type); 
+	pc_setglobalreg(sd, add_str(aura_reg),type); 
 	pc_setpos(sd, sd->mapindex, sd->bl.x, sd->bl.y, CLR_TELEPORT);
  
 	sprintf(atcmd_output, "%s is set!", aura_reg);

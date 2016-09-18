@@ -1343,8 +1343,8 @@ void pc_reg_received(struct map_session_data *sd)
 	sd->cook_mastery = pc_readglobalreg(sd, add_str("COOK_MASTERY"));
 
 	//Aura System
-	sd->status.aura1 = pc_readglobalreg(sd,"AURA1"); 
-	sd->status.aura2 = pc_readglobalreg(sd,"AURA2"); 
+	sd->status.aura1 = pc_readglobalreg(sd, add_str("AURA1")); 
+	sd->status.aura2 = pc_readglobalreg(sd, add_str("AURA2")); 
 
 	if( (sd->class_&MAPID_BASEMASK) == MAPID_TAEKWON )
 	{ // Better check for class rather than skill to prevent "skill resets" from unsetting this
