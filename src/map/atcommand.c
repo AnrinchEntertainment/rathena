@@ -9248,6 +9248,59 @@ ACMD_FUNC(cart) {
 #undef MC_CART_MDFY
 }
 
+/*=============================================
+ * Original code by [TwiTerror] 
+ * Redone by Advi, little edit by Cydh
+ * @auraset (aura)
+ *------------------------------------------ */ 
+ACMD_FUNC(auraset)
+{
+	char aura_reg[8];
+	char aura_cmd[16];
+	int type;
+	
+	nullpo_retr(-1,sd);
+	// TODO: Merge multiple params into 1 command so does not have to have auraset1 and auraset2.
+	// // Prefer to have @auraset A B <Timer>
+	if(strcmp(command+1,"auraset") == 0)
+	{
+		sprintf(atcmd_output, "To set aura, use @auraset1 or @auraset2. (AURA1: '%d' | AURA2: '%d')", sd->status.aura1, sd->status.aura2);
+		clif_displaymessage(fd, atcmd_output);
+		return 0;
+	}
+	else if(strcmp(command+1,"auraset1") == 0)
+	{
+		safestrncpy(aura_reg,"AURA1",sizeof(aura_reg));
+		safestrncpy(aura_cmd,command+1,sizeof(aura_cmd));
+	}
+	else if(strcmp(command+1,"auraset2") == 0)
+	{
+		safestrncpy(aura_reg,"AURA2",sizeof(aura_reg));
+		safestrncpy(aura_cmd,command+1,sizeof(aura_cmd));
+	}
+
+	if (!message || !*message || sscanf(message, "%d", &type) < 1)
+	{
+		sprintf(atcmd_output,"Please, enter at least an option (usage: @%s <aura>).", aura_cmd);
+		clif_displaymessage(fd, atcmd_output);
+		return -1;
+	}
+
+	if(strcmp(aura_reg,"AURA1") == 0)
+		sd->status.aura1 = type;
+	if(strcmp(aura_reg,"AURA2") == 0)
+		sd->status.aura2 = type;
+	
+	pc_setglobalreg(sd,aura_reg,type); 
+	pc_setpos(sd, sd->mapindex, sd->bl.x, sd->bl.y, CLR_TELEPORT);
+ 
+	sprintf(atcmd_output, "%s is set!", aura_reg);
+	clif_displaymessage(fd, atcmd_output);
+ 
+	return 0; 
+}
+
+
 /* Channel System [Ind] */
 ACMD_FUNC(join){
 	char chname[CHAN_NAME_LENGTH], pass[CHAN_NAME_LENGTH];
@@ -10107,6 +10160,9 @@ void atcommand_basecommands(void) {
 		ACMD_DEF2("rmvperm", addperm),
 		ACMD_DEF(unloadnpcfile),
 		ACMD_DEF(cart),
+    	ACMD_DEF2("auraset", auraset),	// Aura system
+    	ACMD_DEF2("auraset1", auraset),	// Aura system
+    	ACMD_DEF2("auraset2", auraset),	// Aura system
 		ACMD_DEF(mount2),
 		ACMD_DEF(join),
 		ACMD_DEFR(channel,ATCMD_NOSCRIPT),

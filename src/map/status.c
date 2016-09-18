@@ -8036,6 +8036,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 	struct view_data *vd;
 	int opt_flag, calc_flag, undead_flag, val_flag = 0, tick_time = 0;
 	bool sc_isnew = true;
+	bool hideAura = false; //Aura System
 
 	nullpo_ret(bl);
 	sc = status_get_sc(bl);
@@ -9355,12 +9356,14 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			}
 			break;
 		case SC_HIDING:
+			hideAura = true; //Aura System
 			val2 = tick/1000;
 			tick_time = 1000; // [GodLesZ] tick time
 			val3 = 0; // Unused, previously speed adjustment
 			val4 = val1+3; // Seconds before SP substraction happen.
 			break;
 		case SC_CHASEWALK:
+			hideAura = true; //Aura System
 			val2 = tick>0?tick:10000; // Interval at which SP is drained.
 			val3 = 35 - 5 * val1; // Speed adjustment.
 			if (sc->data[SC_SPIRIT] && sc->data[SC_SPIRIT]->val2 == SL_ROGUE)
@@ -9369,6 +9372,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			if (map_flag_gvg(bl->m) || map[bl->m].flag.battleground) val4 *= 5;
 			break;
 		case SC_CLOAKING:
+			hideAura = true; //Aura System
 			if (!sd) // Monsters should be able to walk with no penalties. [Skotlex]
 				val1 = 10;
 			tick_time = val2 = tick>0?tick:60000; // SP consumption rate.
@@ -9941,6 +9945,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			tick_time = 3000; // [GodLesZ] tick time
 			break;
 		case SC_CLOAKINGEXCEED:
+			hideAura = true; //Aura System
 			val2 = (val1 + 1) / 2; // Hits
 			val3 = (val1 - 1) * 10; // Walk speed
 			if (bl->type == BL_PC)
@@ -10000,6 +10005,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			tick_time = 1000;
 			break;
 		case SC_CAMOUFLAGE:
+			hideAura = true; //Aura System
 			val4 = tick/1000;
 			tick_time = 1000; // [GodLesZ] tick time
 			break;
@@ -10021,6 +10027,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 				val2 = 20;
 			break;
 		case SC__INVISIBILITY:
+			hideAura = true; //Aura System
 			val2 = 50 - 10 * val1; // ASPD
 			val3 = 20 * val1; // CRITICAL
 			val4 = tick / 1000;
@@ -10569,6 +10576,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			break;
 
 		case SC_STEALTHFIELD:
+			hideAura = true; //Aura System
 			tick_time = tick;
 			tick = -1;
 			break;
@@ -10988,19 +10996,23 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 // 			break;
 		// OPTION
 		case SC_HIDING:
+			hideAura = true; //Aura System
 			sc->option |= OPTION_HIDE;
 			opt_flag = 2;
 			break;
 		case SC_CLOAKING:
 		case SC_CLOAKINGEXCEED:
 		case SC__INVISIBILITY:
+			hideAura = true; //Aura System
 			sc->option |= OPTION_CLOAK;
 		case SC_CAMOUFLAGE:
 		case SC_STEALTHFIELD:
 		case SC__SHADOWFORM:
+			hideAura = true; //Aura System
 			opt_flag = 2;
 			break;
 		case SC_CHASEWALK:
+			hideAura = true; //Aura System
 			sc->option |= OPTION_CHASEWALK|OPTION_CLOAK;
 			opt_flag = 2;
 			break;
@@ -11199,6 +11211,16 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 
 	if( opt_flag&2 && sd && sd->touching_id )
 		npc_touchnext_areanpc(sd,false); // Run OnTouch_ on next char in range
+
+	//Aura System
+	if (hideAura == true) {
+		if (sd && (sd->status.aura1 > 0 || sd->status.aura2 > 0)){
+			if (sd->status.aura1 > 0) sd->status.aura1 *= -1;
+			if (sd->status.aura2 > 0) sd->status.aura2 *= -1;
+			clif_clearunit_area(&sd->bl, CLR_TRICKDEAD);
+			clif_getareachar_char2(sd, &sd->bl);
+		}
+	}
 
 	return 1;
 }
