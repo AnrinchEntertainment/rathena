@@ -978,6 +978,14 @@ void clif_spiritcharm(struct map_session_data *sd);
 void clif_snap( struct block_list *bl, short x, short y );
 void clif_monster_hp_bar( struct mob_data* md, int fd );
 
+// Aura System
+void clif_specialeffecttoone1(struct block_list *bl, struct block_list *dst, int effect);
+void clif_specialeffecttoone2(struct block_list *bl, struct block_list *dst, int effect);
+void clif_sendauras(struct map_session_data *sd, enum send_target target, short aura_num);
+void clif_sendaurastoone(struct map_session_data *sd, struct map_session_data *dsd);
+void clif_getareachar_char2(struct map_session_data* sd, struct block_list *bl);
+int clif_insight2(struct block_list *bl, va_list ap);
+
 /**
  * Color Table
  **/

@@ -1431,6 +1431,9 @@ int clif_spawn(struct block_list *bl)
 		{
 			TBL_PC *sd = ((TBL_PC*)bl);
 
+			clif_sendauras(sd, SELF, 1);    //Aura System
+			clif_sendauras(sd, SELF, 2);    //Aura System
+
 			if (sd->spiritball > 0)
 				clif_spiritball(&sd->bl);
 			if(sd->state.size==SZ_BIG) // tiny/big players [Valaris]
@@ -5006,6 +5009,15 @@ static int clif_getareachar(struct block_list* bl,va_list ap)
 		if(&sd->bl == bl)
 			break;
 		clif_getareachar_unit(sd,bl);
+
+		//Aura System
+		if (bl->type == BL_PC)
+		{
+			struct map_session_data *tsd = (struct map_session_data *)bl;
+			clif_sendaurastoone(sd,tsd);
+			clif_sendaurastoone(tsd,sd);
+		}
+
 		break;
 	}
 	return 0;
@@ -5097,6 +5109,14 @@ int clif_insight(struct block_list *bl,va_list ap)
 	}
 	if (sd && sd->fd) { //Tell sd that tbl walked into his view
 		clif_getareachar_unit(sd,tbl);
+
+		//Aura System 
+		if(tsd)
+		{
+			clif_sendaurastoone(sd,tsd);
+			clif_sendaurastoone(tsd,sd);
+		}
+
 	}
 	return 0;
 }
@@ -17405,7 +17425,6 @@ int clif_elementalconverter_list(struct map_session_data *sd) {
 
 	nullpo_ret(sd);
 
-
 /// Main client packet processing function
 	fd=sd->fd;
 	WFIFOHEAD(fd, MAX_SKILL_PRODUCE_DB *2+4);
@@ -17429,6 +17448,102 @@ int clif_elementalconverter_list(struct map_session_data *sd) {
 
 	return 0;
 }
+
+/*==========================================
+* Aura System
+*------------------------------------------*/
+void clif_sendauras(struct map_session_data *sd, enum send_target target, short aura_num)
+{
+	int effect;
+	aura_num = cap_value(aura_num,1,2);
+	effect = (aura_num == 1)?sd->status.aura1:sd->status.aura2;
+
+	if (sd->status.option&OPTION_HIDE || 
+		sd->status.option&OPTION_CHASEWALK || 
+		sd->status.option&OPTION_CLOAK || 
+		sd->status.option&OPTION_INVISIBLE || 
+		sd->vd.class_ == INVISIBLE_CLASS)	// Are these needed?
+		return;
+
+	if (effect > 0)
+		clif_specialeffect(&sd->bl, effect, target);
+}
+
+/*==========================================
+ * Aura System
+ *------------------------------------------*/
+void clif_sendaurastoone(struct map_session_data *sd, struct map_session_data *dsd)
+{
+	int effect1, effect2;
+	effect1 = sd->status.aura1;
+	effect2 = sd->status.aura2;
+	
+	if (sd->status.option&OPTION_HIDE || 
+		sd->status.option&OPTION_CHASEWALK || 
+		sd->status.option&OPTION_CLOAK || 
+		sd->status.option&OPTION_INVISIBLE || 
+		sd->vd.class_ == INVISIBLE_CLASS)	// Are these needed?
+		return;
+	
+	if (effect1 > 0)
+		clif_specialeffecttoone1(&sd->bl, &dsd->bl, effect1);
+	if (effect2 > 0)
+		clif_specialeffecttoone2(&sd->bl, &dsd->bl, effect2);
+}
+
+/*==========================================
+ * Aura System
+ *------------------------------------------*/
+void clif_specialeffecttoone1(struct block_list *bl, struct block_list *dst, int effect)
+{
+	struct map_session_data *sd = (struct map_session_data *)dst;
+	int type = effect;
+
+	WFIFOW(sd->fd,0) = 0x1f3;
+	WFIFOL(sd->fd,2) = bl->id;
+	WFIFOL(sd->fd,6) = type;
+	WFIFOSET(sd->fd, packet_len(0x1f3));
+}
+void clif_specialeffecttoone2(struct block_list *bl, struct block_list *dst, int effect)
+{
+	struct map_session_data *sd = (struct map_session_data *)dst;
+	int type = effect;
+
+	WFIFOW(sd->fd,0) = 0x1f3;
+	WFIFOL(sd->fd,2) = bl->id;
+	WFIFOL(sd->fd,6) = type;
+	WFIFOSET(sd->fd, packet_len(0x1f3));
+}
+
+/*==========================================
+ * Aura System
+ *------------------------------------------*/
+void clif_getareachar_char2(struct map_session_data* sd, struct block_list *bl)
+{
+	map_foreachinarea(clif_insight2, bl->m, bl->x-AREA_SIZE, bl->y-AREA_SIZE, bl->x+AREA_SIZE, bl->y+AREA_SIZE, BL_PC, bl);
+}
+
+/*==========================================
+ * Aura System
+ *------------------------------------------*/
+int clif_insight2(struct block_list *bl, va_list ap)
+{
+	struct block_list *tbl;
+	TBL_PC *sd, *tsd;
+	tbl=va_arg(ap,struct block_list*);
+
+	if (bl == tbl) return 0;
+
+	sd = BL_CAST(BL_PC, bl);
+	tsd = BL_CAST(BL_PC, tbl);
+
+	if (sd && sd->fd)
+	{ //Tell sd that tbl walked into his view
+		clif_getareachar_unit(sd,tbl);
+	}
+	return 0;
+}
+
 /**
  * Rune Knight
  **/
