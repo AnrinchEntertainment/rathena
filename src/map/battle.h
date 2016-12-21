@@ -565,7 +565,6 @@ extern struct Battle_Config
 	int fame_pharmacy_7;
 	int fame_pharmacy_10;
 
-	int disp_serverbank_msg;
 	int disp_servervip_msg;
 	int warg_can_falcon;
 	int path_blown_halt;
@@ -612,6 +611,8 @@ extern struct Battle_Config
 	int can_damage_skill; //Which BL types can damage traps
 	int atcommand_levelup_events;
 	int block_account_in_same_party;
+	int tarotcard_equal_chance; //Official or equal chance for each card
+	int change_party_leader_samemap;
 
 #include "../custom/battle_config_struct.inc"
 } battle_config;

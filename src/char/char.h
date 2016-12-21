@@ -4,8 +4,6 @@
 #ifndef _CHAR_SQL_H_
 #define _CHAR_SQL_H_
 
-#define DB_NAME_LEN 256 //max len of dbs
-
 #include "../config/core.h"
 #include "../common/core.h" // CORE_ST_LAST
 #include "../common/msg_conf.h"
@@ -28,6 +26,12 @@ enum E_CHARSERVER_ST {
 enum e_char_delete {
 	CHAR_DEL_EMAIL = 1,
 	CHAR_DEL_BIRTHDATE
+};
+
+enum e_char_delete_restriction {
+	CHAR_DEL_RESTRICT_PARTY = 1,
+	CHAR_DEL_RESTRICT_GUILD,
+	CHAR_DEL_RESTRICT_ALL
 };
 
 struct Schema_Config {
@@ -69,6 +73,8 @@ struct Schema_Config {
 	char acc_reg_str_table[DB_NAME_LEN];
 	char char_reg_str_table[DB_NAME_LEN];
 	char char_reg_num_table[DB_NAME_LEN];
+	char clan_table[DB_NAME_LEN];
+	char clan_alliance_table[DB_NAME_LEN];
 };
 extern struct Schema_Config schema_config;
 
@@ -112,6 +118,7 @@ struct Char_Config {
 	char char_name_letters[1024]; // list of letters/symbols allowed (or not) in a character name. by [Yor]
 	int char_name_option; // Option to know which letters/symbols are authorised in the name of a character (0: all, 1: only those in char_name_letters, 2: all EXCEPT those in char_name_letters) by [Yor]
 	int char_del_option;	// Character deletion type, email = 1, birthdate = 2 (default)
+	int char_del_restriction;	// Character deletion restriction (0: none, 1: if the character is in a party, 2: if the character is in a guild, 3: if the character is in a party or a guild)
 };
 
 #define TRIM_CHARS "\255\xA0\032\t\x0A\x0D " //The following characters are trimmed regardless because they cause confusion and problems on the servers. [Skotlex]
@@ -257,15 +264,12 @@ int char_mmo_chars_fromsql(struct char_session_data* sd, uint8* buf);
 int char_delete_char_sql(uint32 char_id);
 int char_rename_char_sql(struct char_session_data *sd, uint32 char_id);
 int char_divorce_char_sql(int partner_id1, int partner_id2);
-int char_memitemdata_to_sql(const struct item items[], int max, int id, int tableswitch);
-
-void disconnect_player(uint32 account_id);
+int char_memitemdata_to_sql(const struct item items[], int max, int id, enum storage_type tableswitch, uint8 stor_id);
+bool char_memitemdata_from_sql(struct s_storage* p, int max, int id, enum storage_type tableswitch, uint8 stor_id);
 
 int char_married(int pl1,int pl2);
 int char_child(int parent_id, int child_id);
 int char_family(int pl1,int pl2,int pl3);
-
-int char_request_accreg2(uint32 account_id, uint32 char_id);
 
 //extern bool char_gm_read;
 int char_loadName(uint32 char_id, char* name);

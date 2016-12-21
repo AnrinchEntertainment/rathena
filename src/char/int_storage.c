@@ -1,6 +1,7 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
+#include "../common/malloc.h"
 #include "../common/mmo.h"
 #include "../common/showmsg.h"
 #include "../common/socket.h"
@@ -15,6 +16,70 @@
 #define STORAGE_MEMINC	16
 
 /**
+ * Check if sotrage ID is valid
+ * @param id Storage ID
+ * @return True:Valid, False:Invalid
+ **/
+bool inter_premiumStorage_exists(uint8 id) {
+	if (interserv_config.storages && interserv_config.storage_count) {
+		int i;
+		for (i = 0; i < interserv_config.storage_count; i++) {
+			if (interserv_config.storages[i].id == id)
+				return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * Get max storage amount
+ * @param id Storage ID
+ * @return Max amount
+ **/
+int inter_premiumStorage_getMax(uint8 id) {
+	if (interserv_config.storages && interserv_config.storage_count) {
+		int i;
+		for (i = 0; i < interserv_config.storage_count; i++) {
+			if (&interserv_config.storages[i] && interserv_config.storages[i].id == id)
+				return interserv_config.storages[i].max_num;
+		}
+	}
+	return MAX_STORAGE;
+}
+
+/**
+ * Get table name of storage
+ * @param id Storage ID
+ * @return Table name
+ **/
+const char *inter_premiumStorage_getTableName(uint8 id) {
+	if (interserv_config.storages && interserv_config.storage_count) {
+		int i;
+		for (i = 0; i < interserv_config.storage_count; i++) {
+			if (&interserv_config.storages[i] && interserv_config.storages[i].id == id)
+				return interserv_config.storages[i].table;
+		}
+	}
+	return schema_config.storage_db;
+}
+
+/**
+* Get printable name of storage
+* @param id Storage ID
+* @return printable name
+**/
+const char *inter_premiumStorage_getPrintableName(uint8 id) {
+	if (interserv_config.storages && interserv_config.storage_count) {
+		int i;
+		for (i = 0; i < interserv_config.storage_count; i++) {
+			if (&interserv_config.storages[i] && interserv_config.storages[i].id == id)
+				return interserv_config.storages[i].name;
+		}
+	}
+	return "Storage";
+}
+
+/**
  * Save inventory entries to SQL
  * @param char_id: Character ID to save
  * @param p: Inventory entries
@@ -22,7 +87,7 @@
  */
 static int inventory_tosql(uint32 char_id, struct s_storage* p)
 {
-	return char_memitemdata_to_sql(p->u.items_inventory, MAX_INVENTORY, char_id, TABLE_INVENTORY);
+	return char_memitemdata_to_sql(p->u.items_inventory, MAX_INVENTORY, char_id, TABLE_INVENTORY, p->stor_id);
 }
 
 /**
@@ -33,7 +98,7 @@ static int inventory_tosql(uint32 char_id, struct s_storage* p)
  */
 static int storage_tosql(uint32 account_id, struct s_storage* p)
 {
-	return char_memitemdata_to_sql(p->u.items_storage, MAX_STORAGE, account_id, TABLE_STORAGE);
+	return char_memitemdata_to_sql(p->u.items_storage, MAX_STORAGE, account_id, TABLE_STORAGE, p->stor_id);
 }
 
 /**
@@ -44,7 +109,7 @@ static int storage_tosql(uint32 account_id, struct s_storage* p)
  */
 static int cart_tosql(uint32 char_id, struct s_storage* p)
 {
-	return char_memitemdata_to_sql(p->u.items_cart, MAX_CART, char_id, TABLE_CART);
+	return char_memitemdata_to_sql(p->u.items_cart, MAX_CART, char_id, TABLE_CART, p->stor_id);
 }
 
 /**
@@ -55,72 +120,7 @@ static int cart_tosql(uint32 char_id, struct s_storage* p)
  */
 static bool inventory_fromsql(uint32 char_id, struct s_storage* p)
 {
-	int i;
-	StringBuf buf;
-	SqlStmt* stmt;
-	struct item tmp_item;
-
-	memset(p, 0, sizeof(struct s_storage)); //clean up memory
-	p->id = char_id;
-	p->type = TABLE_INVENTORY;
-
-	stmt = SqlStmt_Malloc(sql_handle);
-	if (stmt == NULL) {
-		SqlStmt_ShowDebug(stmt);
-		return false;
-	}
-
-	// storage {`account_id`/`id`/`nameid`/`amount`/`equip`/`identify`/`refine`/`attribute`/`expire_time`/`favorite`/`bound`/`unique_id`/`card0`/`card1`/`card2`/`card3`/`option_id0`/`option_val0`/`option_parm0`/`option_id1`/`option_val1`/`option_parm1`/`option_id2`/`option_val2`/`option_parm2`/`option_id3`/`option_val3`/`option_parm3`/`option_id4`/`option_val4`/`option_parm4`}
-	StringBuf_Init(&buf);
-	StringBuf_AppendStr(&buf, "SELECT `id`, `nameid`, `amount`, `equip`, `identify`, `refine`, `attribute`, `expire_time`, `favorite`, `bound`, `unique_id`");
-	for( i = 0; i < MAX_SLOTS; ++i )
-		StringBuf_Printf(&buf, ", `card%d`", i);
-	for( i = 0; i < MAX_ITEM_RDM_OPT; ++i ) {
-		StringBuf_Printf(&buf, ", `option_id%d`", i);
-		StringBuf_Printf(&buf, ", `option_val%d`", i);
-		StringBuf_Printf(&buf, ", `option_parm%d`", i);
-	}
-	StringBuf_Printf(&buf, " FROM `%s` WHERE `char_id`=? LIMIT %d", schema_config.inventory_db, MAX_INVENTORY);
-
-	if( SQL_ERROR == SqlStmt_PrepareStr(stmt, StringBuf_Value(&buf))
-		||	SQL_ERROR == SqlStmt_BindParam(stmt, 0, SQLDT_INT, &char_id, 0)
-		||	SQL_ERROR == SqlStmt_Execute(stmt) )
-	{
-		SqlStmt_ShowDebug(stmt);
-		SqlStmt_Free(stmt);
-		StringBuf_Destroy(&buf);
-		return false;
-	}
-
-	SqlStmt_BindColumn(stmt, 0, SQLDT_INT,       &tmp_item.id,          0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 1, SQLDT_USHORT,    &tmp_item.nameid,      0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 2, SQLDT_SHORT,     &tmp_item.amount,      0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 3, SQLDT_UINT,      &tmp_item.equip,       0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 4, SQLDT_CHAR,      &tmp_item.identify,    0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 5, SQLDT_CHAR,      &tmp_item.refine,      0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 6, SQLDT_CHAR,      &tmp_item.attribute,   0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 7, SQLDT_UINT,      &tmp_item.expire_time, 0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 8, SQLDT_CHAR,      &tmp_item.favorite,    0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 9, SQLDT_CHAR,      &tmp_item.bound,       0, NULL, NULL);
-	SqlStmt_BindColumn(stmt,10, SQLDT_ULONGLONG, &tmp_item.unique_id,   0, NULL, NULL);
-	for( i = 0; i < MAX_SLOTS; ++i )
-		SqlStmt_BindColumn(stmt, 11+i, SQLDT_USHORT, &tmp_item.card[i], 0, NULL, NULL);
-	for( i = 0; i < MAX_ITEM_RDM_OPT; ++i ) {
-		SqlStmt_BindColumn(stmt, 11+MAX_SLOTS+i*3, SQLDT_SHORT, &tmp_item.option[i].id, 0, NULL, NULL);
-		SqlStmt_BindColumn(stmt, 12+MAX_SLOTS+i*3, SQLDT_SHORT, &tmp_item.option[i].value, 0, NULL, NULL);
-		SqlStmt_BindColumn(stmt, 13+MAX_SLOTS+i*3, SQLDT_CHAR, &tmp_item.option[i].param, 0, NULL, NULL);
- 	}
-
-	for( i = 0; i < MAX_INVENTORY && SQL_SUCCESS == SqlStmt_NextRow(stmt); ++i )
-		memcpy(&p->u.items_inventory[i], &tmp_item, sizeof(tmp_item));
-
-	p->amount = i;
-	ShowInfo("Loaded inventory data from DB - CID: %d (total: %d)\n", char_id, p->amount);
-
-	SqlStmt_FreeResult(stmt);
-	SqlStmt_Free(stmt);
-	StringBuf_Destroy(&buf);
-	return true;
+	return char_memitemdata_from_sql( p, MAX_INVENTORY, char_id, TABLE_INVENTORY, p->stor_id );
 }
 
 /**
@@ -131,146 +131,19 @@ static bool inventory_fromsql(uint32 char_id, struct s_storage* p)
  */
 static bool cart_fromsql(uint32 char_id, struct s_storage* p)
 {
-	int i,j;
-	StringBuf buf;
-	SqlStmt* stmt;
-	struct item tmp_item;
-
-	memset(p, 0, sizeof(struct s_storage)); //clean up memory
-	p->id = char_id;
-	p->type = TABLE_CART;
-
-	stmt = SqlStmt_Malloc(sql_handle);
-	if (stmt == NULL) {
-		SqlStmt_ShowDebug(stmt);
-		return false;
-	}
-
-	// storage {`char_id`/`id`/`nameid`/`amount`/`equip`/`identify`/`refine`/`attribute`/`expire_time`/`bound`/`unique_id`/`card0`/`card1`/`card2`/`card3`/`option_id0`/`option_val0`/`option_parm0`/`option_id1`/`option_val1`/`option_parm1`/`option_id2`/`option_val2`/`option_parm2`/`option_id3`/`option_val3`/`option_parm3`/`option_id4`/`option_val4`/`option_parm4`}
-	StringBuf_Init(&buf);
-	StringBuf_AppendStr(&buf, "SELECT `id`, `nameid`, `amount`, `equip`, `identify`, `refine`, `attribute`, `expire_time`, `bound`, `unique_id`");
-	for( j = 0; j < MAX_SLOTS; ++j )
-		StringBuf_Printf(&buf, ",`card%d`", j);
-	for( i = 0; i < MAX_ITEM_RDM_OPT; ++i ) {
-		StringBuf_Printf(&buf, ", `option_id%d`", i);
-		StringBuf_Printf(&buf, ", `option_val%d`", i);
-		StringBuf_Printf(&buf, ", `option_parm%d`", i);
-	}
-	StringBuf_Printf(&buf, " FROM `%s` WHERE `char_id`=? ORDER BY `id` LIMIT %d", schema_config.cart_db, MAX_CART);
-
-	if( SQL_ERROR == SqlStmt_PrepareStr(stmt, StringBuf_Value(&buf))
-		||	SQL_ERROR == SqlStmt_BindParam(stmt, 0, SQLDT_INT, &char_id, 0)
-		||	SQL_ERROR == SqlStmt_Execute(stmt) )
-	{
-		SqlStmt_ShowDebug(stmt);
-		SqlStmt_Free(stmt);
-		StringBuf_Destroy(&buf);
-		return false;
-	}
-
-	SqlStmt_BindColumn(stmt, 0, SQLDT_INT,         &tmp_item.id,          0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 1, SQLDT_USHORT,      &tmp_item.nameid,      0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 2, SQLDT_SHORT,       &tmp_item.amount,      0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 3, SQLDT_UINT,        &tmp_item.equip,       0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 4, SQLDT_CHAR,        &tmp_item.identify,    0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 5, SQLDT_CHAR,        &tmp_item.refine,      0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 6, SQLDT_CHAR,        &tmp_item.attribute,   0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 7, SQLDT_UINT,        &tmp_item.expire_time, 0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 8, SQLDT_CHAR,        &tmp_item.bound,       0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 9, SQLDT_ULONGLONG,   &tmp_item.unique_id,   0, NULL, NULL);
-	for( i = 0; i < MAX_SLOTS; ++i )
-		SqlStmt_BindColumn(stmt, 10+i, SQLDT_USHORT, &tmp_item.card[i], 0, NULL, NULL);
-	for( i = 0; i < MAX_ITEM_RDM_OPT; ++i ) {
-		SqlStmt_BindColumn(stmt, 10+MAX_SLOTS+i*3, SQLDT_SHORT, &tmp_item.option[i].id, 0, NULL, NULL);
-		SqlStmt_BindColumn(stmt, 11+MAX_SLOTS+i*3, SQLDT_SHORT, &tmp_item.option[i].value, 0, NULL, NULL);
-		SqlStmt_BindColumn(stmt, 12+MAX_SLOTS+i*3, SQLDT_CHAR, &tmp_item.option[i].param, 0, NULL, NULL);
- 	}
-
-	for( i = 0; i < MAX_CART && SQL_SUCCESS == SqlStmt_NextRow(stmt); ++i )
-		memcpy(&p->u.items_cart[i], &tmp_item, sizeof(tmp_item));
-
-	p->amount = i;
-	ShowInfo("Loaded Cart data from DB - CID: %d (total: %d)\n", char_id, p->amount);
-
-	SqlStmt_FreeResult(stmt);
-	SqlStmt_Free(stmt);
-	StringBuf_Destroy(&buf);
-	return true;
+	return char_memitemdata_from_sql( p, MAX_CART, char_id, TABLE_CART, p->stor_id );
 }
 
 /**
  * Fetch storage entries from table
  * @param char_id: Character ID to fetch
  * @param p: Storage list to save the entries
+ * @param stor_id: Storage ID
  * @return True if success, False if failed
  */
 static bool storage_fromsql(uint32 account_id, struct s_storage* p)
 {
-	int i, j;
-	StringBuf buf;
-	SqlStmt* stmt;
-	struct item tmp_item;
-
-	memset(p, 0, sizeof(struct s_storage)); //clean up memory
-	p->id = account_id;
-	p->type = TABLE_STORAGE;
-
-	stmt = SqlStmt_Malloc(sql_handle);
-	if (stmt == NULL) {
-		SqlStmt_ShowDebug(stmt);
-		return false;
-	}
-
-	// storage {`account_id`/`id`/`nameid`/`amount`/`equip`/`identify`/`refine`/`attribute`/`card0`/`card1`/`card2`/`card3`/`option_id0`/`option_val0`/`option_parm0`/`option_id1`/`option_val1`/`option_parm1`/`option_id2`/`option_val2`/`option_parm2`/`option_id3`/`option_val3`/`option_parm3`/`option_id4`/`option_val4`/`option_parm4`}
-	StringBuf_Init(&buf);
-	StringBuf_AppendStr(&buf, "SELECT `id`, `nameid`, `amount`, `equip`, `identify`, `refine`, `attribute`, `expire_time`, `bound`, `unique_id`");
-	for( j = 0; j < MAX_SLOTS; ++j )
-		StringBuf_Printf(&buf, ", `card%d`", j);
-	for( i = 0; i < MAX_ITEM_RDM_OPT; ++i ) {
-		StringBuf_Printf(&buf, ", `option_id%d`", i);
-		StringBuf_Printf(&buf, ", `option_val%d`", i);
-		StringBuf_Printf(&buf, ", `option_parm%d`", i);
-	}
-	StringBuf_Printf(&buf, " FROM `%s` WHERE `account_id`=? ORDER BY `nameid` LIMIT %d", schema_config.storage_db, account_id, MAX_STORAGE);
-
-	if( SQL_ERROR == SqlStmt_PrepareStr(stmt, StringBuf_Value(&buf))
-		||	SQL_ERROR == SqlStmt_BindParam(stmt, 0, SQLDT_INT, &account_id, 0)
-		||	SQL_ERROR == SqlStmt_Execute(stmt) )
-	{
-		SqlStmt_ShowDebug(stmt);
-		SqlStmt_Free(stmt);
-		StringBuf_Destroy(&buf);
-		return false;
-	}
-
-	SqlStmt_BindColumn(stmt, 0, SQLDT_INT,           &tmp_item.id,          0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 1, SQLDT_USHORT,        &tmp_item.nameid,      0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 2, SQLDT_SHORT,         &tmp_item.amount,      0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 3, SQLDT_UINT,          &tmp_item.equip,       0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 4, SQLDT_CHAR,          &tmp_item.identify,    0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 5, SQLDT_CHAR,          &tmp_item.refine,      0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 6, SQLDT_CHAR,          &tmp_item.attribute,   0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 7, SQLDT_UINT,          &tmp_item.expire_time, 0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 8, SQLDT_CHAR,          &tmp_item.bound,       0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 9, SQLDT_ULONGLONG,     &tmp_item.unique_id,   0, NULL, NULL);
-	for( i = 0; i < MAX_SLOTS; ++i )
-		SqlStmt_BindColumn(stmt, 10+i, SQLDT_USHORT, &tmp_item.card[i],     0, NULL, NULL);
-	for( i = 0; i < MAX_ITEM_RDM_OPT; ++i ) {
-		SqlStmt_BindColumn(stmt, 10+MAX_SLOTS+i*3, SQLDT_SHORT, &tmp_item.option[i].id, 0, NULL, NULL);
-		SqlStmt_BindColumn(stmt, 11+MAX_SLOTS+i*3, SQLDT_SHORT, &tmp_item.option[i].value, 0, NULL, NULL);
-		SqlStmt_BindColumn(stmt, 12+MAX_SLOTS+i*3, SQLDT_CHAR, &tmp_item.option[i].param, 0, NULL, NULL);
- 	}
-
-	for( i = 0; i < MAX_STORAGE && SQL_SUCCESS == SqlStmt_NextRow(stmt); ++i )
-		memcpy(&p->u.items_storage[i], &tmp_item, sizeof(tmp_item));
-
-	p->amount = i;
-	ShowInfo("Loaded Storage data from DB - AID: %d (total: %d)\n", account_id, p->amount);
-
-	SqlStmt_FreeResult(stmt);
-	SqlStmt_Free(stmt);
-	StringBuf_Destroy(&buf);
-	return true;
+	return char_memitemdata_from_sql( p, MAX_STORAGE, account_id, TABLE_STORAGE, p->stor_id );
 }
 
 /**
@@ -282,7 +155,7 @@ static bool storage_fromsql(uint32 account_id, struct s_storage* p)
 bool guild_storage_tosql(int guild_id, struct s_storage* p)
 {
 	//ShowInfo("Guild Storage has been saved (GID: %d)\n", guild_id);
-	return char_memitemdata_to_sql(p->u.items_guild, MAX_GUILD_STORAGE, guild_id, TABLE_GUILD_STORAGE);
+	return char_memitemdata_to_sql(p->u.items_guild, MAX_GUILD_STORAGE, guild_id, TABLE_GUILD_STORAGE, p->stor_id);
 }
 
 /**
@@ -293,77 +166,31 @@ bool guild_storage_tosql(int guild_id, struct s_storage* p)
  */
 bool guild_storage_fromsql(int guild_id, struct s_storage* p)
 {
-	int i,j;
-	StringBuf buf;
-	SqlStmt* stmt;
-	struct item tmp_item;
+	return char_memitemdata_from_sql( p, MAX_GUILD_STORAGE, guild_id, TABLE_GUILD_STORAGE, p->stor_id );
+}
 
-	memset(p, 0, sizeof(struct s_storage)); //clean up memory
-	p->id = guild_id;
-	p->type = TABLE_GUILD_STORAGE;
-
-	stmt = SqlStmt_Malloc(sql_handle);
-	if (stmt == NULL) {
-		SqlStmt_ShowDebug(stmt);
-		return false;
+static void inter_storage_checkDB(void) {
+	int i = 0;
+	// Checking storage tables
+	for (i = 0; i < interserv_config.storage_count; i++) {
+		if (!&interserv_config.storages[i] || !interserv_config.storages[i].name || !interserv_config.storages[i].table || interserv_config.storages[i].table == '\0')
+			continue;
+		if (SQL_ERROR == Sql_Query(sql_handle, "SELECT  `id`,`account_id`,`nameid`,`amount`,`equip`,`identify`,`refine`,"
+			"`attribute`,`card0`,`card1`,`card2`,`card3`,`option_id0`,`option_val0`,`option_parm0`,`option_id1`,`option_val1`,`option_parm1`,"
+			"`option_id2`,`option_val2`,`option_parm2`,`option_id3`,`option_val3`,`option_parm3`,`option_id4`,`option_val4`,`option_parm4`,"
+			"`expire_time`,`bound`,`unique_id`"
+			" FROM `%s` LIMIT 1;", interserv_config.storages[i].table) ){
+			Sql_ShowDebug(sql_handle);
+		}
 	}
-
-	// storage {`guild_id`/`id`/`nameid`/`amount`/`equip`/`identify`/`refine`/`attribute`/`expire_time`/`bound`/`unique_id`/`card0`/`card1`/`card2`/`card3`/`option_id0`/`option_val0`/`option_parm0`/`option_id1`/`option_val1`/`option_parm1`/`option_id2`/`option_val2`/`option_parm2`/`option_id3`/`option_val3`/`option_parm3`/`option_id4`/`option_val4`/`option_parm4`}
-	StringBuf_Init(&buf);
-	StringBuf_AppendStr(&buf, "SELECT `id`,`nameid`,`amount`,`equip`,`identify`,`refine`,`attribute`,`expire_time`,`bound`,`unique_id`");
-	for( j = 0; j < MAX_SLOTS; ++j )
-		StringBuf_Printf(&buf, ",`card%d`", j);
-	for( j = 0; j < MAX_ITEM_RDM_OPT; ++j ) {
-		StringBuf_Printf(&buf, ", `option_id%d`", j);
-		StringBuf_Printf(&buf, ", `option_val%d`", j);
-		StringBuf_Printf(&buf, ", `option_parm%d`", j);
-	}
-	StringBuf_Printf(&buf, " FROM `%s` WHERE `guild_id`='%d' ORDER BY `nameid`", schema_config.guild_storage_db, guild_id);
-
-	if( SQL_ERROR == SqlStmt_PrepareStr(stmt, StringBuf_Value(&buf))
-		||	SQL_ERROR == SqlStmt_BindParam(stmt, 0, SQLDT_INT, &guild_id, 0)
-		||	SQL_ERROR == SqlStmt_Execute(stmt) )
-	{
-		SqlStmt_ShowDebug(stmt);
-		SqlStmt_Free(stmt);
-		StringBuf_Destroy(&buf);
-		return false;
-	}
-
-	SqlStmt_BindColumn(stmt, 0, SQLDT_INT,          &tmp_item.id,        0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 1, SQLDT_USHORT,       &tmp_item.nameid,    0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 2, SQLDT_SHORT,        &tmp_item.amount,    0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 3, SQLDT_UINT,         &tmp_item.equip,     0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 4, SQLDT_CHAR,         &tmp_item.identify,  0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 5, SQLDT_CHAR,         &tmp_item.refine,    0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 6, SQLDT_CHAR,         &tmp_item.attribute, 0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 7, SQLDT_UINT,         &tmp_item.expire_time, 0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 8, SQLDT_CHAR,         &tmp_item.bound,     0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 9, SQLDT_ULONGLONG,    &tmp_item.unique_id, 0, NULL, NULL);
-	for( i = 0; i < MAX_SLOTS; ++i )
-		SqlStmt_BindColumn(stmt, 10+i, SQLDT_USHORT, &tmp_item.card[i],   0, NULL, NULL);
- 	for( i = 0; i < MAX_ITEM_RDM_OPT; ++i ) {
-		SqlStmt_BindColumn(stmt, 10+MAX_SLOTS+i*3, SQLDT_SHORT, &tmp_item.option[i].id, 0, NULL, NULL);
-		SqlStmt_BindColumn(stmt, 11+MAX_SLOTS+i*3, SQLDT_SHORT, &tmp_item.option[i].value, 0, NULL, NULL);
-		SqlStmt_BindColumn(stmt, 12+MAX_SLOTS+i*3, SQLDT_CHAR, &tmp_item.option[i].param, 0, NULL, NULL);
- 	}
-
-	for( i = 0; i < MAX_GUILD_STORAGE && SQL_SUCCESS == SqlStmt_NextRow(stmt); ++i )
-		memcpy(&p->u.items_guild[i], &tmp_item, sizeof(tmp_item));
-
-	p->amount = i;
-	ShowInfo("Loaded Guild Storage data from DB - GID: %d (total: %d)\n", guild_id, p->amount);
-
-	SqlStmt_FreeResult(stmt);
-	SqlStmt_Free(stmt);
-	StringBuf_Destroy(&buf);
-	return true;
+	Sql_FreeResult(sql_handle);
 }
 
 //---------------------------------------------------------
 // storage data initialize
 void inter_storage_sql_init(void)
 {
+	inter_storage_checkDB();
 	return;
 }
 
@@ -371,19 +198,6 @@ void inter_storage_sql_init(void)
 void inter_storage_sql_final(void)
 {
 	return;
-}
-
-// Delete char storage
-void inter_storage_delete(uint32 account_id)
-{
-	if( SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `account_id`='%d'", schema_config.storage_db, account_id) )
-		Sql_ShowDebug(sql_handle);
-}
-
-void inter_guild_storage_delete(int guild_id)
-{
-	if( SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `guild_id`='%d'", schema_config.guild_storage_db, guild_id) )
-		Sql_ShowDebug(sql_handle);
 }
 
 //---------------------------------------------------------
@@ -678,48 +492,58 @@ static void mapif_storage_data_loaded(int fd, uint32 account_id, char type, stru
  * @param fd
  * @param account_id
  * @param char_id
+ * @param success
  * @param type
+ * @param stor_id
  */
-void mapif_storage_saved(int fd, uint32 account_id, uint32 char_id, bool sucess, char type) {
-	WFIFOHEAD(fd,8);
+void mapif_storage_saved(int fd, uint32 account_id, uint32 char_id, bool success, char type, uint8 stor_id) {
+	WFIFOHEAD(fd,9);
 	WFIFOW(fd, 0) = 0x388b;
 	WFIFOL(fd, 2) = account_id;
-	WFIFOB(fd, 6) = sucess;
+	WFIFOB(fd, 6) = success;
 	WFIFOB(fd, 7) = type;
-	WFIFOSET(fd,8);
-
-	if (type == TABLE_CART_) {
-		struct s_storage stor;
-		memset(&stor, 0, sizeof(struct s_storage));
-		mapif_storage_data_loaded(fd, account_id, type, stor, cart_fromsql(char_id, &stor));
-	}
+	WFIFOB(fd, 8) = stor_id;
+	WFIFOSET(fd,9);
 }
 
 /**
  * Requested inventory/cart/storage data for a player
- * ZI 0x308a <type>.B <account_id>.L <char_id>.L
+ * ZI 0x308a <type>.B <account_id>.L <char_id>.L <storage_id>.B <mode>.B
  * @param fd
  */
 bool mapif_parse_StorageLoad(int fd) {
 	uint32 aid, cid;
 	int type;
+	uint8 stor_id, mode;
 	struct s_storage stor;
 	bool res = true;
 
-	RFIFOHEAD(fd);
 	type = RFIFOB(fd,2);
 	aid = RFIFOL(fd,3);
 	cid = RFIFOL(fd,7);
+	stor_id = RFIFOB(fd,11);
 
 	memset(&stor, 0, sizeof(struct s_storage));
+	stor.stor_id = stor_id;
 
 	//ShowInfo("Loading storage for AID=%d.\n", aid);
 	switch (type) {
 		case TABLE_INVENTORY: res = inventory_fromsql(cid, &stor); break;
-		case TABLE_STORAGE:   res = storage_fromsql(aid, &stor);   break;
+		case TABLE_STORAGE:
+			if (!inter_premiumStorage_exists(stor_id)) {
+				ShowError("Invalid storage with id %d\n", stor_id);
+				return false;
+			}
+			res = storage_fromsql(aid, &stor);
+			break;
 		case TABLE_CART:      res = cart_fromsql(cid, &stor);      break;
 		default: return false;
 	}
+
+	mode = RFIFOB(fd, 12);
+	stor.state.put = (mode&STOR_MODE_PUT) ? 1 : 0;
+	stor.state.get = (mode&STOR_MODE_GET) ? 1 : 0;
+
 	mapif_storage_data_loaded(fd, aid, type, stor, res);
 	return true;
 }
@@ -743,15 +567,18 @@ bool mapif_parse_StorageSave(int fd) {
 
 	//ShowInfo("Saving storage data for AID=%d.\n", aid);
 	switch(type){
-		case TABLE_INVENTORY: inventory_tosql(cid, &stor); break;
-		case TABLE_STORAGE:   storage_tosql(aid, &stor);   break;
-		case TABLE_CART:
-		case TABLE_CART_:
-			cart_tosql(cid, &stor);
+		case TABLE_INVENTORY:	inventory_tosql(cid, &stor); break;
+		case TABLE_STORAGE:
+			if (!inter_premiumStorage_exists(stor.stor_id)) {
+				ShowError("Invalid storage with id %d\n", stor.stor_id);
+				return false;
+			}
+			storage_tosql(aid, &stor);
 			break;
+		case TABLE_CART:	cart_tosql(cid, &stor); break;
 		default: return false;
 	}
-	mapif_storage_saved(fd, aid, cid, true, type);
+	mapif_storage_saved(fd, aid, cid, true, type, stor.stor_id);
 	return false;
 }
 
