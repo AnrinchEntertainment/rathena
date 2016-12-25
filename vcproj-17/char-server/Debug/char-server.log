@@ -1,0 +1,23 @@
+﻿  char.c
+  char_clif.c
+  char_cnslif.c
+  char_logif.c
+  char_mapif.c
+  int_auction.c
+  int_clan.c
+  int_elemental.c
+  int_guild.c
+  int_homun.c
+  int_mail.c
+  int_mercenary.c
+  int_party.c
+  int_pet.c
+  int_quest.c
+  int_storage.c
+  inter.c
+  core.c
+  db.c
+  mapindex.c
+  socket.c
+  char-server.vcxproj -> E:\Source\Anrinch\rathena\vcproj-17\..\char-server.exe
+  char-server.vcxproj -> ..\char-server.pdb (Full PDB)
