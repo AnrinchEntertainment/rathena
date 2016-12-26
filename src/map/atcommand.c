@@ -643,7 +643,7 @@ ACMD_FUNC(who) {
 
 	iter = mapit_getallusers();
 	for (pl_sd = (TBL_PC*)mapit_first(iter); mapit_exists(iter); pl_sd = (TBL_PC*)mapit_next(iter))	{
-		if (!((pc_has_permission(pl_sd, PC_PERM_HIDE_SESSION) || (pl_sd->sc.option & OPTION_INVISIBLE)) && pc_get_group_level(pl_sd) > level)) { // you can look only lower or same level
+		if (!((pc_has_permission(pl_sd, PC_PERM_HIDE_SESSION) || pc_isinvisible(pl_sd)) && pc_get_group_level(pl_sd) > level)) { // you can look only lower or same level
 			if (stristr(pl_sd->status.name, player_name) == NULL // search with no case sensitive
 				|| (map_id >= 0 && pl_sd->bl.m != map_id))
 				continue;
@@ -751,7 +751,7 @@ ACMD_FUNC(whogm)
 				continue;
 		}
 		if (pl_level > level) {
-			if (pl_sd->sc.option & OPTION_INVISIBLE)
+			if (pc_isinvisible(pl_sd))
 				continue;
 			sprintf(atcmd_output, msg_txt(sd,913), pl_sd->status.name); // Name: %s (GM)
 			clif_displaymessage(fd, atcmd_output);
@@ -922,6 +922,11 @@ ACMD_FUNC(guildstorage)
 		return -1;
 	}
 
+	if (sd->state.storage_flag == 3) {
+		clif_displaymessage(fd, msg_txt(sd,250));
+		return -1;
+	}
+
 	storage_guild_storageopen(sd);
 	clif_displaymessage(fd, msg_txt(sd,920)); // Guild storage opened.
 	return 0;
@@ -968,7 +973,7 @@ ACMD_FUNC(option)
 ACMD_FUNC(hide)
 {
 	nullpo_retr(-1, sd);
-	if (sd->sc.option & OPTION_INVISIBLE) {
+	if (pc_isinvisible(sd)) {
 		sd->sc.option &= ~OPTION_INVISIBLE;
 		if (sd->disguise)
 			status_set_viewdata(&sd->bl, sd->disguise);
@@ -1619,7 +1624,6 @@ ACMD_FUNC(pvpoff)
 
 	if (!battle_config.pk_mode){
 		clif_map_property_mapall(sd->bl.m, MAPPROPERTY_NOTHING);
-		clif_maptypeproperty2(&sd->bl,ALL_SAMEMAP);
 	}
 	map_foreachinmap(atcommand_pvpoff_sub,sd->bl.m, BL_PC);
 	map_foreachinmap(atcommand_stopattack,sd->bl.m, BL_CHAR, 0);
@@ -1657,7 +1661,6 @@ ACMD_FUNC(pvpon)
 
 	if (!battle_config.pk_mode) {// display pvp circle and rank
 		clif_map_property_mapall(sd->bl.m, MAPPROPERTY_FREEPVPZONE);
-		clif_maptypeproperty2(&sd->bl,ALL_SAMEMAP);
 		map_foreachinmap(atcommand_pvpon_sub,sd->bl.m, BL_PC);
 	}
 
@@ -1680,7 +1683,6 @@ ACMD_FUNC(gvgoff)
 
 	map[sd->bl.m].flag.gvg = 0;
 	clif_map_property_mapall(sd->bl.m, MAPPROPERTY_NOTHING);
-	clif_maptypeproperty2(&sd->bl,ALL_SAMEMAP);
 	map_foreachinmap(atcommand_stopattack,sd->bl.m, BL_CHAR, 0);
 	clif_displaymessage(fd, msg_txt(sd,33)); // GvG: Off.
 
@@ -1701,7 +1703,6 @@ ACMD_FUNC(gvgon)
 
 	map[sd->bl.m].flag.gvg = 1;
 	clif_map_property_mapall(sd->bl.m, MAPPROPERTY_AGITZONE);
-	clif_maptypeproperty2(&sd->bl,ALL_SAMEMAP);
 	clif_displaymessage(fd, msg_txt(sd,34)); // GvG: On.
 
 	return 0;
@@ -1752,7 +1753,8 @@ ACMD_FUNC(bodystyle)
 	// Limit body styles to certain jobs since not all of them are released yet.
 	if (!((sd->class_&MAPID_THIRDMASK) == MAPID_GUILLOTINE_CROSS || (sd->class_&MAPID_THIRDMASK) == MAPID_GENETIC
 		|| (sd->class_&MAPID_THIRDMASK) == MAPID_MECHANIC || (sd->class_&MAPID_THIRDMASK) == MAPID_ROYAL_GUARD
-		|| (sd->class_&MAPID_THIRDMASK) == MAPID_ARCH_BISHOP || (sd->class_&MAPID_THIRDMASK) == MAPID_RANGER)) {
+		|| (sd->class_&MAPID_THIRDMASK) == MAPID_ARCH_BISHOP || (sd->class_&MAPID_THIRDMASK) == MAPID_RANGER
+		|| (sd->class_&MAPID_THIRDMASK) == MAPID_WARLOCK)) {
 		clif_displaymessage(fd, msg_txt(sd,740));	// This job has no alternate body styles.
 		return -1;
 	}
@@ -3430,6 +3432,11 @@ ACMD_FUNC(guild)
 
 	memset(guild, '\0', sizeof(guild));
 
+	if (sd->clan) {
+		clif_displaymessage(fd, msg_txt(sd, 1498)); // You cannot create a guild because you are in a clan.
+		return -1;
+	}
+
 	if (!message || !*message || sscanf(message, "%23[^\n]", guild) < 1) {
 		clif_displaymessage(fd, msg_txt(sd,1030)); // Please enter a guild name (usage: @guild <guild_name>).
 		return -1;
@@ -3471,77 +3478,118 @@ ACMD_FUNC(breakguild)
 		clif_displaymessage(fd, msg_txt(sd,252)); // You are not in a guild.
 		return -1;
 	}
-	return 0;
 }
 
-/*==========================================
- *
- *------------------------------------------*/
+/**
+ * Start WoE:FE
+ */
 ACMD_FUNC(agitstart)
 {
 	nullpo_retr(-1, sd);
-	if (agit_flag == 1) {
+
+	if (agit_flag) {
 		clif_displaymessage(fd, msg_txt(sd,73)); // War of Emperium is currently in progress.
 		return -1;
 	}
 
-	agit_flag = 1;
+	agit_flag = true;
 	guild_agit_start();
 	clif_displaymessage(fd, msg_txt(sd,72)); // War of Emperium has been initiated.
 
 	return 0;
 }
 
-/*==========================================
- *
- *------------------------------------------*/
+/**
+ * Start WoE:SE
+ */
 ACMD_FUNC(agitstart2)
 {
 	nullpo_retr(-1, sd);
-	if (agit2_flag == 1) {
+
+	if (agit2_flag) {
 		clif_displaymessage(fd, msg_txt(sd,404)); // "War of Emperium SE is currently in progress."
 		return -1;
 	}
 
-	agit2_flag = 1;
+	agit2_flag = true;
 	guild_agit2_start();
 	clif_displaymessage(fd, msg_txt(sd,403)); // "War of Emperium SE has been initiated."
 
 	return 0;
 }
 
-/*==========================================
- *
- *------------------------------------------*/
+/**
+ * Start WoE:TE
+ */
+ACMD_FUNC(agitstart3)
+{
+	nullpo_retr(-1, sd);
+
+	if (agit3_flag) {
+		clif_displaymessage(fd, msg_txt(sd,750)); // "War of Emperium TE is currently in progress."
+		return -1;
+	}
+
+	agit3_flag = true;
+	guild_agit3_start();
+	clif_displaymessage(fd, msg_txt(sd,749)); // "War of Emperium TE has been initiated."
+
+	return 0;
+}
+
+/**
+ * End WoE:FE
+ */
 ACMD_FUNC(agitend)
 {
 	nullpo_retr(-1, sd);
-	if (agit_flag == 0) {
+
+	if (!agit_flag) {
 		clif_displaymessage(fd, msg_txt(sd,75)); // War of Emperium is currently not in progress.
 		return -1;
 	}
 
-	agit_flag = 0;
+	agit_flag = false;
 	guild_agit_end();
 	clif_displaymessage(fd, msg_txt(sd,74)); // War of Emperium has been ended.
 
 	return 0;
 }
 
-/*==========================================
- *
- *------------------------------------------*/
+/**
+ * End WoE:SE
+ */
 ACMD_FUNC(agitend2)
 {
 	nullpo_retr(-1, sd);
-	if (agit2_flag == 0) {
+
+	if (!agit2_flag) {
 		clif_displaymessage(fd, msg_txt(sd,406)); // "War of Emperium SE is currently not in progress."
 		return -1;
 	}
 
-	agit2_flag = 0;
+	agit2_flag = false;
 	guild_agit2_end();
 	clif_displaymessage(fd, msg_txt(sd,405)); // "War of Emperium SE has been ended."
+
+	return 0;
+}
+
+/**
+ * End WoE:TE
+ */
+ACMD_FUNC(agitend3)
+{
+	nullpo_retr(-1, sd);
+
+	if (!agit3_flag) {
+		clif_displaymessage(fd, msg_txt(sd,752));// War of Emperium TE is currently not in progress.
+		return -1;
+	}
+
+	agit3_flag = false;
+	guild_agit3_end();
+	clif_displaymessage(fd, msg_txt(sd,751));// War of Emperium TE has been ended.
 
 	return 0;
 }
@@ -4055,6 +4103,10 @@ ACMD_FUNC(mapinfo) {
 		strcat(atcmd_output, " GvG Dungeon |");
 	if (map[m_id].flag.gvg_castle)
 		strcat(atcmd_output, " GvG Castle |");
+	if (map[m_id].flag.gvg_te)
+		strcat(atcmd_output, " GvG TE |");
+	if (map[m_id].flag.gvg_te_castle)
+		strcat(atcmd_output, " GvG TE Castle |");
 	if (map[m_id].flag.gvg_noparty)
 		strcat(atcmd_output, " NoParty |");
 	clif_displaymessage(fd, atcmd_output);
@@ -4130,6 +4182,8 @@ ACMD_FUNC(mapinfo) {
 		strcat(atcmd_output, " AllowKS |");
 	if (map[m_id].flag.reset)
 		strcat(atcmd_output, " Reset |");
+	if (map[m_id].flag.hidemobhpbar)
+		strcat(atcmd_output, " HideMobHPBar |");
 	clif_displaymessage(fd, atcmd_output);
 
 	strcpy(atcmd_output,msg_txt(sd,1051)); // Other Flags2:
@@ -5447,7 +5501,7 @@ ACMD_FUNC(storeall)
 		if (sd->inventory.u.items_inventory[i].amount) {
 			if(sd->inventory.u.items_inventory[i].equip != 0)
 				pc_unequipitem(sd, i, 3);
-			storage_storageadd(sd,  i, sd->inventory.u.items_inventory[i].amount);
+			storage_storageadd(sd, &sd->storage, i, sd->inventory.u.items_inventory[i].amount);
 		}
 	}
 	storage_storageclose(sd);
@@ -5465,10 +5519,14 @@ ACMD_FUNC(clearstorage)
 		clif_displaymessage(fd, msg_txt(sd,250));
 		return -1;
 	}
+	if (sd->state.storage_flag == 3) {
+		clif_displaymessage(fd, msg_txt(sd,250));
+		return -1;
+	}
 
 	j = sd->storage.amount;
 	for (i = 0; i < j; ++i) {
-		storage_delitem(sd, i, sd->storage.u.items_storage[i].amount);
+		storage_delitem(sd, &sd->storage, i, sd->storage.u.items_storage[i].amount);
 	}
 	sd->state.storage_flag = 1;
 	storage_storageclose(sd);
@@ -5498,6 +5556,11 @@ ACMD_FUNC(cleargstorage)
 
 	if (sd->state.storage_flag == 2) {
 		clif_displaymessage(fd, msg_txt(sd,251));
+		return -1;
+	}
+
+	if (sd->state.storage_flag == 3) {
+		clif_displaymessage(fd, msg_txt(sd,250));
 		return -1;
 	}
 
@@ -7973,9 +8036,9 @@ ACMD_FUNC(fakename)
 		if( sd->fakename[0] )
 		{
 			sd->fakename[0] = '\0';
-			clif_charnameack(0, &sd->bl);
+			clif_name_area(&sd->bl);
 			if (sd->disguise)
-				clif_charnameack(sd->fd, &sd->bl);
+				clif_name_self(&sd->bl);
 			clif_displaymessage(sd->fd, msg_txt(sd,1307)); // Returned to real name.
 			return 0;
 		}
@@ -7991,9 +8054,9 @@ ACMD_FUNC(fakename)
 	}
 
 	safestrncpy(sd->fakename, message, sizeof(sd->fakename));
-	clif_charnameack(0, &sd->bl);
+	clif_name_area(&sd->bl);
 	if (sd->disguise) // Another packet should be sent so the client updates the name for sd
-		clif_charnameack(sd->fd, &sd->bl);
+		clif_name_self(&sd->bl);
 	clif_displaymessage(sd->fd, msg_txt(sd,1310)); // Fake name enabled.
 
 	return 0;
@@ -8032,7 +8095,8 @@ ACMD_FUNC(mapflag) {
 		checkflag(nodrop);				checkflag(novending);			checkflag(loadevent);			checkflag(nochat);
 		checkflag(partylock);			checkflag(guildlock);			checkflag(reset);				checkflag(chmautojoin);
 		checkflag(nousecart);			checkflag(noitemconsumption);	checkflag(nosumstarmiracle);	checkflag(nomineeffect);
-		checkflag(nolockon);			checkflag(notomb);				checkflag(nocostume);
+		checkflag(nolockon);			checkflag(notomb);				checkflag(nocostume);			checkflag(gvg_te);
+		checkflag(gvg_te_castle);		checkflag(hidemobhpbar);
 #ifdef ADJUST_SKILL_DAMAGE
 		checkflag(skill_damage);
 #endif
@@ -8056,7 +8120,8 @@ ACMD_FUNC(mapflag) {
 	setflag(nodrop);			setflag(novending);			setflag(loadevent);				setflag(nochat);
 	setflag(partylock);			setflag(guildlock);			setflag(reset);					setflag(chmautojoin);
 	setflag(nousecart);			setflag(noitemconsumption);	setflag(nosumstarmiracle);		setflag(nomineeffect);
-	setflag(nolockon);			setflag(notomb);			setflag(nocostume);
+	setflag(nolockon);			setflag(notomb);			setflag(nocostume);				setflag(gvg_te);
+	setflag(gvg_te_castle);		setflag(hidemobhpbar);
 #ifdef ADJUST_SKILL_DAMAGE
 	setflag(skill_damage);
 #endif
@@ -8072,7 +8137,7 @@ ACMD_FUNC(mapflag) {
 	clif_displaymessage(sd->fd,"fog, fireworks, sakura, leaves, nogo, nobaseexp, nojobexp, nomobloot, nomvploot,");
 	clif_displaymessage(sd->fd,"nightenabled, restricted, nodrop, novending, loadevent, nochat, partylock, guildlock,");
 	clif_displaymessage(sd->fd,"reset, chmautojoin, nousecart, noitemconsumption, nosumstarmiracle, nolockon, notomb,");
-	clif_displaymessage(sd->fd,"nocostume");
+	clif_displaymessage(sd->fd,"nocostume, gvg_te, gvg_te_castle, hidemobhpbar");
 #ifdef ADJUST_SKILL_DAMAGE
 	clif_displaymessage(sd->fd,"skill_damage");
 #endif
@@ -8561,7 +8626,7 @@ ACMD_FUNC(itemlist)
 	if( strcmp(parent_cmd, "storagelist") == 0 ) {
 		location = "storage";
 		items = sd->storage.u.items_storage;
-		size = sd->storage_size;
+		size = sd->storage.max_amount;
 	} else if( strcmp(parent_cmd, "cartlist") == 0 ) {
 		location = "cart";
 		items = sd->cart.u.items_cart;
@@ -9553,8 +9618,6 @@ ACMD_FUNC(vip) {
 	pl_sd->vip.time += vipdifftime; //increase or reduce VIP duration
 	
 	if (pl_sd->vip.time <= now) {
-		pl_sd->vip.time = 0;
-		pl_sd->vip.enabled = 0;
 		clif_displaymessage(pl_sd->fd, msg_txt(pl_sd,703)); // GM has removed your VIP time.
 		clif_displaymessage(fd, msg_txt(sd,704)); // Player is no longer VIP.
 	} else {
@@ -9583,10 +9646,10 @@ ACMD_FUNC(vip) {
 ACMD_FUNC(showrate) {
 	nullpo_retr(-1,sd);
 	if (!sd->vip.disableshowrate) {
-		sprintf(atcmd_output,msg_txt(sd,718)); //Personal rate information is not displayed now.
+		safestrncpy(atcmd_output,msg_txt(sd,718),CHAT_SIZE_MAX); //Personal rate information is not displayed now.
 		sd->vip.disableshowrate = 1;
 	} else {
-		sprintf(atcmd_output,msg_txt(sd,719)); //Personal rate information will be shown.
+		safestrncpy(atcmd_output,msg_txt(sd,719),CHAT_SIZE_MAX); //Personal rate information will be shown.
 		sd->vip.disableshowrate = 0;
 	}
 	clif_displaymessage(fd,atcmd_output);
@@ -10178,6 +10241,8 @@ void atcommand_basecommands(void) {
 		ACMD_DEF(clonestat),
 		ACMD_DEF(bodystyle),
 		ACMD_DEF(adopt),
+		ACMD_DEF(agitstart3),
+		ACMD_DEF(agitend3),
 	};
 	AtCommandInfo* atcommand;
 	int i;

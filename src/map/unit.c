@@ -1357,7 +1357,7 @@ int unit_can_move(struct block_list *bl) {
 	// Status changes that block movement
 	if (sc) {
 		if( sc->cant.move // status placed here are ones that cannot be cached by sc->cant.move for they depend on other conditions other than their availability
-			|| (sc->data[SC_SPIDERWEB] && sc->data[SC_SPIDERWEB]->val1)
+			|| sc->data[SC_SPIDERWEB]
 			|| (sc->data[SC_DANCING] && sc->data[SC_DANCING]->val4 && (
 				!sc->data[SC_LONGING] ||
 				(sc->data[SC_DANCING]->val1&0xFFFF) == CG_MOONLIT ||
@@ -2496,9 +2496,6 @@ static int unit_attack_timer_sub(struct block_list* src, int tid, unsigned int t
 	   || (sd && !pc_can_attack(sd, target->id)) )
 		return 0; // Can't attack under these conditions
 
-	if (sd && &sd->sc && sd->sc.count && sd->sc.data[SC_HEAT_BARREL_AFTER])
-		return 0;
-
 	if( src->m != target->m ) {
 		if( src->type == BL_MOB && mob_warpchase((TBL_MOB*)src, target) )
 			return 1; // Follow up.
@@ -2912,6 +2909,8 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char* file, 
 					storage_storage_quit(sd,0);
 				else if (sd->state.storage_flag == 2)
 					storage_guild_storage_quit(sd, 0);
+				else if (sd->state.storage_flag == 3)
+					storage_premiumStorage_quit(sd);
 
 				sd->state.storage_flag = 0; //Force close it when being warped.
 			}
@@ -2978,7 +2977,7 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char* file, 
 			else if (--map[bl->m].users == 0 && battle_config.dynamic_mobs)
 				map_removemobs(bl->m);
 
-			if( !(sd->sc.option&OPTION_INVISIBLE) ) // Decrement the number of active pvp players on the map
+			if( !pc_isinvisible(sd) ) // Decrement the number of active pvp players on the map
 				--map[bl->m].users_pvp;
 
 			if( sd->state.hpmeter_visible ) {

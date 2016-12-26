@@ -18,6 +18,7 @@
 #include "map.h"
 #include "path.h"
 #include "chrif.h"
+#include "clan.h"
 #include "clif.h"
 #include "duel.h"
 #include "intif.h"
@@ -111,8 +112,9 @@ int map_port=0;
 int autosave_interval = DEFAULT_AUTOSAVE_INTERVAL;
 int minsave_interval = 100;
 unsigned char save_settings = CHARSAVE_ALL;
-int agit_flag = 0;
-int agit2_flag = 0;
+bool agit_flag = false;
+bool agit2_flag = false;
+bool agit3_flag = false;
 int night_flag = 0; // 0=day, 1=night [Yor]
 
 #ifdef ADJUST_SKILL_DAMAGE
@@ -1981,6 +1983,9 @@ int map_quit(struct map_session_data *sd) {
 	if( sd->bg_id )
 		bg_team_leave(sd,1);
 
+	if( sd->status.clan_id )
+		clan_member_left(sd);
+
 	pc_itemcd_do(sd,false);
 
 	npc_script_event(sd, NPCE_LOGOUT);
@@ -2035,7 +2040,6 @@ int map_quit(struct map_session_data *sd) {
 			// Both these statuses are removed on logout. [L0ne_W0lf]
 			status_change_end(&sd->bl, SC_SLOWCAST, INVALID_TIMER);
 			status_change_end(&sd->bl, SC_CRITICALWOUND, INVALID_TIMER);
-			status_change_end(&sd->bl, SC_HEAT_BARREL_AFTER, INVALID_TIMER);
 			status_change_end(&sd->bl, SC_H_MINE, INVALID_TIMER);
 			status_change_end(&sd->bl, SC_ANTI_M_BLAST, INVALID_TIMER);
 			status_change_end(&sd->bl, SC_B_TRAP, INVALID_TIMER);
@@ -4384,6 +4388,7 @@ void do_final(void)
 	do_final_atcommand();
 	do_final_battle();
 	do_final_chrif();
+	do_final_clan();
 	do_final_clif();
 	do_final_npc();
 	do_final_quest();
@@ -4724,6 +4729,7 @@ int do_init(int argc, char *argv[])
 	do_init_instance();
 	do_init_channel();
 	do_init_chrif();
+	do_init_clan();
 	do_init_clif();
 	do_init_script();
 	do_init_itemdb();

@@ -40,6 +40,27 @@ struct s_item_group_db *itemdb_group_exists(unsigned short group_id) {
 }
 
 /**
+ * Check if an item exists in a group
+ * @param nameid: Item to check for in group
+ * @return True if item is in group, else false
+ */
+bool itemdb_group_item_exists(unsigned short group_id, unsigned short nameid)
+{
+	struct s_item_group_db *group = (struct s_item_group_db *)uidb_get(itemdb_group, group_id);
+	unsigned short i, j;
+
+	if (!group)
+		return false;
+
+	for (i = 0; i < MAX_ITEMGROUP_RANDGROUP; i++) {
+		for (j = 0; j < group->random[i].data_qty; j++)
+			if (group->random[i].data[j].nameid == nameid)
+				return true;
+	}
+	return false;
+}
+
+/**
  * Search for item name
  * name = item alias, so we should find items aliases first. if not found then look for "jname" (full name)
  * @see DBApply
@@ -1281,7 +1302,7 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 		id->slot = MAX_SLOTS;
 	}
 
-	itemdb_jobid2mapid(id->class_base, (uint64)strtoul(str[11],NULL,0));
+	itemdb_jobid2mapid(id->class_base, (uint64)strtoull(str[11],NULL,0));
 	id->class_upper = atoi(str[12]);
 	id->sex	= atoi(str[13]);
 	id->equip = atoi(str[14]);
@@ -1520,11 +1541,11 @@ static int itemdb_read_sqldb(void) {
 bool itemdb_isNoEquip(struct item_data *id, uint16 m) {
 	if (!id->flag.no_equip)
 		return false;
-	/* on restricted maps the item is consumed but the effect is not used */
-	if ((!map_flag_vs(m) && id->flag.no_equip&1) || // Normal
+	if ((!map_flag_vs2(m) && id->flag.no_equip&1) || // Normal
 		(map[m].flag.pvp && id->flag.no_equip&2) || // PVP
-		(map_flag_gvg(m) && id->flag.no_equip&4) || // GVG
+		(map_flag_gvg2_no_te(m) && id->flag.no_equip&4) || // GVG
 		(map[m].flag.battleground && id->flag.no_equip&8) || // Battleground
+		(map_flag_gvg2_te(m) && id->flag.no_equip&16) || // WOE:TE
 		(map[m].flag.restricted && id->flag.no_equip&(8*map[m].zone)) // Zone restriction
 		)
 		return true;
@@ -1681,7 +1702,7 @@ static void itemdb_read(void) {
 		}
 		
 		sv_readdb(dbsubpath1, "item_avail.txt",         ',', 2, 2, -1, &itemdb_read_itemavail, i);
-		sv_readdb(dbsubpath1, "item_stack.txt",         ',', 3, 3, -1, &itemdb_read_stack, i);
+		sv_readdb(dbsubpath2, "item_stack.txt",         ',', 3, 3, -1, &itemdb_read_stack, i);
 		sv_readdb(dbsubpath1, "item_nouse.txt",         ',', 3, 3, -1, &itemdb_read_nouse, i);
 		sv_readdb(dbsubpath2, "item_group_db.txt",		',', 2, 10, -1, &itemdb_read_group, i);
 		sv_readdb(dbsubpath2, "item_bluebox.txt",		',', 2, 10, -1, &itemdb_read_group, i);
