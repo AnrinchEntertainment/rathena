@@ -21,8 +21,10 @@
 // see conf/battle/client.conf for other version
 
 #ifndef PACKETVER
-	#define PACKETVER 20130807
+	//#define PACKETVER 20130807 // This one is previous version.
 	//#define PACKETVER 20120410
+	//#define PACKETVER 20141022
+    #define PACKETVER 20150916
 #endif
 
 // Check if the specified packetversion supports the pincode system

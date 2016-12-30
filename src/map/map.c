@@ -3657,6 +3657,7 @@ int map_readallmaps (void)
 
 		// The map was not found - remove it
 		if( !(idx = mapindex_name2id(map[i].name)) || !success ){
+			ShowWarning("Map %s not found in mapindex name2id lookup!"CL_CLL"\n", map[i].name);
 			map_delmapid(i);
 			maps_removed++;
 			i--;
