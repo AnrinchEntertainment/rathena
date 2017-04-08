@@ -1,0 +1,1084 @@
+//===== eAthena Script =======================================
+//= Restore 12.1 Changes that we do not like...
+//===== By: ==================================================
+//= Liam Mitchell
+//===== Current Version: =====================================
+//= 1.0
+//===== Compatible With: =====================================
+//= rAthena Project
+//===== Description: =========================================
+//= Restores the Warp Points for the following:
+//=  * Prontera Fields
+//=  * Morocc Fields
+//=  * Morocc
+//=  * Ant Hell
+//= Moves NPC back to where they were previous
+//= to the destruction of Morocc.
+//=  Quest Archer Skills:
+//=  Quest Veins: TODO
+//=  Quest Nameless Islands: TODO
+//=  Quest Morocc:
+//=  Quest Old Blue Box:
+//=  Quest Smile Assistant:
+//=  Quest iRO EXP Quest:
+//=  Auction Hall:
+//=  Morroc Shops:
+//= Unloads the Dandelion_Request quest.
+//===== Additional Comments: =================================
+//= 1.1 updating according to jA [Lupus]
+//= 1.2 Updated warps for episode 12.1 [L0ne_W0lf]
+//============================================================
+
+//= Prontera Fields ==========================================
+-	script	AnrinchMorrocFix	-1,{
+
+OnInit:
+	// Disable 12.1 warps.
+	disablenpc "prtf025";
+	disablenpc "prtf028";
+	disablenpc "prtf029";
+
+	disablenpc "moc005";
+
+	disablenpc "mocf01-1";
+
+	disablenpc "mocf20-1";
+	disablenpc "mocf23";
+	disablenpc "mocf17-1";
+	disablenpc "mocf26-1";
+	disablenpc "mocf27-1";
+
+	disablenpc "mocf01-1";
+	disablenpc "mocf13-1";
+	disablenpc "mocf20-1";
+	disablenpc "mocf23";
+	disablenpc "mocf17-1";
+	disablenpc "mocf26-1";
+	disablenpc "mocf27-1";
+
+
+	disablenpc "moc_ant1-1";
+	disablenpc "moc_ant1-2";
+	disablenpc "moc_ant2-1";
+	disablenpc "moc_ant2-2";
+
+	// Disable moc_ruins npcs.
+	disablenpc "Weapon Dealer#moc1";
+	disablenpc "Sepulchral Merchant#moc";
+	disablenpc "Tool Dealer#moc1";
+	disablenpc "Tool Dealer#moc2";
+	disablenpc "Item Collector#moc1";
+	disablenpc "Item Collector#moc2";
+	disablenpc "Jeweler#moc1";
+	disablenpc "Jeweler#moc2";
+	disablenpc "Trader#moc1";
+	disablenpc "Trader#moc2";
+	disablenpc "Trader#moc3";
+	disablenpc "Trader#moc4";
+	disablenpc "Trader#moc5";
+	disablenpc "Pet Groomer#moc";
+	disablenpc "Butcher#moc";
+	disablenpc "Armor Dealer#moc";
+	disablenpc "Chef Assistant#moc";
+
+	disablenpc "Repairman#moc";
+
+	// Satan Morocc Filler NPC.
+	disablenpc "MocSoldier";
+	disablenpc "MocVolunteer";
+	disablenpc "Volunteer - Morroc#01";
+	disablenpc "Volunteer - Morroc#02";
+	disablenpc "Volunteer - Morroc#03";
+	disablenpc "Volunteer - Morroc#04";
+	disablenpc "Volunteer - Morroc#05";
+	disablenpc "Young Man#moc01";
+	disablenpc "Young Man#moc02";
+	disablenpc "Pale Looking Young Man";
+	disablenpc "Little Girl#moc";
+	disablenpc "Little Boy#moc";
+	disablenpc "Ant Man#moc";
+	disablenpc "Assassin Boy#moc";
+	disablenpc "Fly Man#moc";
+	disablenpc "Uncle Morroc#moc";
+	disablenpc "SinGuard";
+
+	disablenpc "Smile Assistance#moc";
+
+	disablenpc "Tommy#thai";
+	disablenpc "Jacob#thai";
+
+	disablenpc "William";
+	disablenpc "Alchemist";
+
+	disablenpc "Roberto";
+
+	disablenpc "Chief Balrog";
+	disablenpc "ConMessenger";
+	disablenpc "Continental Official";
+
+	disablenpc "Morocc Timer#edq";
+	disablenpc "Satan Broadcast#edq";
+	disablenpc "Book-Touching Man#garas";
+
+	disablenpc "Group of Evil#edq";
+	disablenpc "Time-Space Gap#edq";
+	disablenpc "Satan Summon#edq";
+	disablenpc "MorrocAdmin_sec";
+	disablenpc "Library Curator#garas";
+	disablenpc "Library Master#garas";
+	disablenpc "Library Part-Timer#garas";
+	disablenpc "Hot Bestseller Corner";
+	disablenpc "Old News Scrapbook";
+	disablenpc "Suspicious Man#oliver_h";
+	disablenpc "Worn-out Book#garas";
+	disablenpc "#bpast_1_1";
+	disablenpc "Female Researcher#bpast";
+	disablenpc "#bpast_1to2";
+	disablenpc "Researcher#bpast_2_2";
+	disablenpc "#bpast_2to3_1";
+	disablenpc "#bpast_2to3_2";
+	disablenpc "#3room_barmunt";
+	disablenpc "Grotesque Woman#eva1";
+	disablenpc "Grotesque Man#zid1";
+	disablenpc "Grotesque Woman#eva2";
+	disablenpc "Grotesque Man#zid2";
+	disablenpc "#garas_f_yume";
+	disablenpc "#barmut_room1";
+	disablenpc "#barmunt_fire";
+	disablenpc "#barmunt_living";
+	disablenpc "#barmut_room2";
+	disablenpc "#barmut_onna";
+	disablenpc "Cave Settler#g1";
+	disablenpc "Jaeda#garas1";
+	disablenpc "cave_in1";
+	disablenpc "case_out1";
+	disablenpc "zid_in";
+	disablenpc "zid_out";
+	disablenpc "Monsterous Man#zid";
+	disablenpc "Cave Settler#f_cave1";
+	disablenpc "Cave Settler#m_cave2";
+	disablenpc "Cave Settler#m_cave3";
+	disablenpc "Cave Settler#f_cave4";
+	disablenpc "Cave Girl#f_cave5";
+	disablenpc "Cave Settler#f_cave6";
+	disablenpc "Cave Settler#f_cave7";
+	disablenpc "Messenger#prince1";
+	disablenpc "Inspector#prince";
+	disablenpc "Prince";
+	disablenpc "Servant#hans";
+	disablenpc "Prince#urgen";
+	disablenpc "Prince#helmut";
+	disablenpc "Calbern";
+	disablenpc "Prince#poe";
+	disablenpc "Prince#peter";
+	disablenpc "Girl#prince";
+	disablenpc "Prince#eisen";
+	disablenpc "Prince#ern";
+	disablenpc "#twonoble";
+	disablenpc "Young Noble#valter";
+	disablenpc "Aged Noble#rihart";
+	disablenpc "Prince#another_ern";
+	disablenpc "Prince#another_ern1";
+	disablenpc "Prince#eisen1";
+	disablenpc "Prince#eisen2";
+	disablenpc "Prince#eisen3";
+	disablenpc "Prince#eisen4";
+	disablenpc "Prince#eisen5";
+	disablenpc "Prince#eisen6";
+	disablenpc "#eisen";
+	disablenpc "#eisen2";
+	disablenpc "eisen22";
+	disablenpc "#ern2";
+	disablenpc "#erich2";
+	disablenpc "#helmut2";
+	disablenpc "#poe2";
+	disablenpc "#peter2";
+	disablenpc "#urgen2";
+	disablenpc "#class2";
+	disablenpc "#class";
+	disablenpc "#room11";
+	disablenpc "#room21";
+	disablenpc "#room12";
+	disablenpc "#room22";
+	disablenpc "#princeout";
+	disablenpc "Guard#princein";
+	disablenpc "#arm";
+	disablenpc "#arm1";
+
+	disablenpc "Kafra Voting Staff#moc";
+	disablenpc "Cool Event Staff#moc";
+
+	end;
+}
+
+//warp: <map name>,<x>,<y>,<facing>%TAB%duplicate(<label>)%TAB%<NPC Name>%TAB%<spanx>,<spany>
+// Put back non 12.1 warps.
+prt_fild09,246,16,0	warp	A_prtf025	7,2,moc_fild04,92,378
+prt_fild09,95,16,0	warp	A_prtf028	7,2,moc_fild05,325,379
+prt_fild10,263,20,0	warp	A_prtf029	6,2,moc_fild05,144,372
+
+moc_fild01,101,16,0	warp	A_mocf01-1	15,3,moc_fild04,317,376
+
+moc_fild04,14,122,0	warp	A_mocf07-1	1,11,moc_fild05,378,119
+moc_fild04,14,146,0	warp	A_mocf07-2	1,11,moc_fild05,378,119
+moc_fild04,14,98,0	warp	A_mocf07	1,11,moc_fild05,378,119
+moc_fild04,175,18,0	warp	A_mocf08	3,2,moc_fild08,170,380
+moc_fild04,19,206,0	warp	A_mocf09	3,15,moc_fild05,373,208
+moc_fild04,219,327,0	script	A_mocf016	45,3,4,{ set @anthell,0; warp "anthell01",35,262; }
+moc_fild04,292,381,0	warp	A_mocf01-2	10,1,moc_fild01,76,25
+moc_fild04,314,381,0	warp	A_mocf01-3	10,1,moc_fild01,76,25
+moc_fild04,336,381,0	warp	A_mocf01-4	10,1,moc_fild01,76,25
+moc_fild04,92,381,0	warp	A_mocf008	9,2,prt_fild09,246,19
+moc_fild05,144,375,0	warp	A_mocf009	11,2,prt_fild10,263,23
+moc_fild05,18,136,0	warp	A_mocf10	1,8,moc_fild06,367,317
+moc_fild05,18,154,0	warp	A_mocf10-1	1,8,moc_fild06,367,317
+moc_fild05,18,172,0	warp	A_mocf10-2	1,8,moc_fild06,367,317
+moc_fild05,268,18,0	warp	A_mocf11	4,2,moc_fild09,267,368
+moc_fild05,325,382,0	warp	A_mocf010	6,2,prt_fild09,95,19
+moc_fild05,378,208,0	warp	A_mocf09-1	3,14,moc_fild04,26,206
+moc_fild05,384,108,0	warp	A_mocf07-3	1,8,moc_fild04,22,123
+moc_fild05,384,126,0	warp	A_mocf07-4	1,8,moc_fild04,22,123
+moc_fild05,384,144,0	warp	A_mocf07-5	1,8,moc_fild04,22,123
+moc_fild05,82,16,0	warp	A_mocf12	5,2,moc_fild09,80,366
+moc_fild06,18,198,0	warp	A_mocf13	1,18,moc_fild07,378,201
+moc_fild06,207,18,0	warp	A_mocf14	11,2,moc_fild10,208,295
+moc_fild06,377,316,0	warp	A_mocf10-3	1,15,moc_fild05,24,153
+
+
+moc_fild07,381,201,0	warp	A_mocf13-1	2,16,moc_fild06,28,201
+moc_fild08,16,207,0	warp	A_mocf15	2,4,moc_fild09,371,195
+moc_fild08,170,383,0	warp	A_mocf08-1	3,2,moc_fild04,175,21
+moc_fild08,204,16,0	warp	A_mocf16	4,2,moc_fild14,196,379
+moc_fild08,383,211,0	warp	A_mocf17	2,4,moc_fild13,32,171
+moc_fild09,126,20,0	warp	A_mocf18	4,2,moc_fild15,158,360
+moc_fild09,267,371,0	warp	A_mocf11-1	4,2,moc_fild05,268,21
+moc_fild09,30,162,0	warp	A_mocf19	2,3,moc_fild10,381,258
+moc_fild09,374,195,0	warp	A_mocf15-1	2,8,moc_fild08,19,207
+moc_fild09,80,369,0	warp	A_mocf12-1	7,2,moc_fild05,82,19
+moc_fild10,189,23,0	warp	A_mocf20	3,2,moc_fild11,189,360
+moc_fild10,19,207,0	warp	A_mocf002	2,2,morocc,299,207
+moc_fild10,208,298,0	warp	A_mocf14-1	10,2,moc_fild06,207,21
+moc_fild10,384,258,0	warp	A_mocf19-1	2,3,moc_fild09,33,162
+moc_fild11,189,363,0	warp	A_mocf20-1	3,2,moc_fild10,189,26
+
+moc_fild11,379,197,0	warp	A_mocf23	2,6,moc_fild15,41,105
+
+moc_fild13,29,171,0	warp	A_mocf17-1	2,4,moc_fild08,380,211
+
+moc_fild14,16,278,0	warp	A_mocf25	2,6,moc_fild15,364,276
+moc_fild14,196,382,0	warp	A_mocf16-1	4,2,moc_fild08,204,19
+moc_fild15,104,16,0	warp	A_mocf26	9,2,moc_fild16,125,380
+moc_fild15,158,363,0	warp	A_mocf18-1	6,2,moc_fild09,126,23
+moc_fild15,258,253,0	script	A_mocf017	45,3,3,{ set @anthell,1; warp "anthell01",35,262; }
+moc_fild15,348,18,0	warp	A_mocf27	5,2,moc_fild16,334,379
+moc_fild15,367,276,0	warp	A_mocf25-1	2,4,moc_fild14,19,278
+moc_fild15,38,105,0	warp	A_mocf23-1	2,4,moc_fild11,376,197
+moc_fild16,125,383,0	warp	A_mocf26-1	5,2,moc_fild15,104,19
+
+moc_fild16,334,382,0	warp	A_mocf27-1	4,2,moc_fild15,348,21
+moc_fild17,218,369,0	warp	A_mocf21-1	5,2,moc_fild11,212,32
+
+//= Morroc Castle ===========================================
+moc_castle,94,183,0	warp	mocc001	2,1,morocc,160,185
+moc_castle,107,163,0	warp	mocc01	2,3,moc_castle,124,163
+moc_castle,120,163,0	warp	mocc01-1	2,3,moc_castle,103,163
+moc_castle,120,75,0	warp	mocc02	2,3,moc_castle,56,33
+moc_castle,59,34,0	warp	mocc02-1	2,3,moc_castle,124,75
+moc_castle,134,101,0	warp	mocc03	1,1,moc_castle,134,128
+moc_castle,134,124,0	warp	mocc-03	2,2,moc_castle,134,98
+moc_castle,134,139,0	warp	mocc04	1,1,moc_castle,134,160
+moc_castle,134,156,0	warp	mocc04-1	2,2,moc_castle,134,136
+moc_castle,149,163,0	warp	mocc05	2,3,moc_castle,162,163
+moc_castle,158,163,0	warp	mocc05-1	2,3,moc_castle,145,163
+moc_castle,16,131,0	warp	mocc06	1,2,moc_castle,16,164
+moc_castle,16,160,0	warp	mocc06-1	1,2,moc_castle,16,125
+moc_castle,170,131,0	warp	mocc07	2,2,moc_castle,170,163
+moc_castle,170,160,0	warp	mocc07-1	1,1,moc_castle,170,128
+moc_castle,29,163,0	warp	mocc08	2,2,moc_castle,44,163
+moc_castle,40,163,0	warp	mocc08-1	2,2,moc_castle,25,163
+moc_castle,51,114,0	warp	mocc09	3,2,moc_castle,54,65
+moc_castle,54,69,0	warp	mocc09-1	3,2,moc_castle,52,117
+moc_castle,54,139,0	warp	mocc10	2,2,moc_castle,54,160
+moc_castle,54,156,0	warp	mocc10-1	2,2,moc_castle,54,134
+moc_castle,63,89,0	warp	mocc11	2,3,moc_castle,83,89
+moc_castle,80,89,0	warp	mocc11-1	2,3,moc_castle,60,89
+moc_castle,69,163,0	warp	mocc12	2,2,moc_castle,86,163
+moc_castle,82,163,0	warp	mocc12-1	2,2,moc_castle,66,163
+
+// Moc Ruins warps.
+//moc_ruins,161,40,0	warp	moc02-2	2,4,morocc,26,293
+//moc_ruins,157,37,0	warp	moc02-3	5,2,morocc,26,293
+
+// Right side warp.
+morocc,302,207,0	warp	A_moc005	2,2,moc_fild10,22,207
+
+//= Ant Hell =================================================
+anthell01,35,267,0	script	ant001	45,1,1,{
+  if(@anthell) {
+    warp "moc_fild15",251,248;
+  } else {
+    warp "moc_fild04",213,327;
+  }
+  end;
+}
+anthell02,171,169,0	script	ant002	45,1,2,{
+  if(@anthell) {
+    warp "moc_fild04",213,327;
+  } else {
+    warp "moc_fild15",251,248;
+  }
+  end;
+}
+
+// Put back monster spawns.
+//==================================================
+// moc_fild04 - Sograt Desert
+//==================================================
+moc_fild04,0,0	monster	Desert Wolf	1106,20
+moc_fild04,0,0	monster	Scorpion	1001,30
+moc_fild04,0,0	monster	Metaller	1058,20
+moc_fild04,0,0	monster	Magnolia	1138,40
+moc_fild04,0,0	monster	Ant Egg	1097,10
+moc_fild04,0,0	monster	Andre	1095,20
+moc_fild04,0,0	monster	Deniro	1105,20
+moc_fild04,0,0	monster	Piere	1160,20
+moc_fild04,313,84,10,10	monster	Yellow Plant	1081,10,900000,450000
+
+//==================================================
+// moc_fild05 - Sograt Desert
+//==================================================
+moc_fild05,0,0	monster	Magnolia	1138,30
+moc_fild05,0,0	monster	Metaller	1058,20
+moc_fild05,0,0	monster	Golem	1040,70
+moc_fild05,0,0	monster	Ant Egg	1097,10
+moc_fild05,208,233,10,10	monster	Yellow Plant	1081,5,360000,180000
+
+//==================================================
+// moc_fild06 - Sograt Desert
+//==================================================
+moc_fild06,0,0	monster	Peco Peco	1019,85
+moc_fild06,0,0	monster	Muka	1055,30
+moc_fild06,0,0	monster	Condor	1009,50
+moc_fild06,0,0	monster	Magnolia	1138,10
+moc_fild06,0,0	monster	Ant Egg	1097,10
+moc_fild06,193,203,10,10	monster	Yellow Plant	1081,10,900000,450000
+
+//==================================================
+// moc_fild08 - Sograt Desert
+//==================================================
+moc_fild08,0,0	monster	Magnolia	1138,30
+moc_fild08,0,0	monster	Scorpion	1001,80
+moc_fild08,0,0	monster	Desert Wolf	1106,30
+moc_fild08,0,0	monster	Anacondaq	1030,30
+moc_fild08,0,0	monster	Baby Desert Wolf	1107,10
+moc_fild08,0,0	monster	Drops	1113,10
+
+//==================================================
+// moc_fild09 - Sograt Desert
+//==================================================
+moc_fild09,0,0	monster	Desert Wolf	1106,10
+moc_fild09,0,0	monster	Metaller	1058,70
+moc_fild09,0,0	monster	Magnolia	1138,50
+moc_fild09,0,0	monster	Ant Egg	1097,10
+moc_fild09,0,0	monster	Andre	1095,5
+moc_fild09,0,0	monster	Deniro	1105,5
+moc_fild09,0,0	monster	Piere	1160,5
+moc_fild09,0,0	monster	Ant Egg	1097,10
+moc_fild09,0,0	monster	Frilldora	1119,6
+moc_fild09,332,341,5,5	monster	Yellow Plant	1081,2,180000,90000
+moc_fild09,240,313,5,5	monster	Yellow Plant	1081,2,180000,90000
+moc_fild09,305,62,5,5	monster	Yellow Plant	1081,2,180000,90000
+moc_fild09,64,78,5,5	monster	Yellow Plant	1081,2,180000,90000
+moc_fild09,54,325,5,5	monster	Yellow Plant	1081,2,180000,90000
+
+//==================================================
+// moc_fild10 - Sograt Desert
+//==================================================
+moc_fild10,0,0	monster	Drops	1113,30
+moc_fild10,0,0	monster	Peco Peco Egg	1047,70
+moc_fild10,0,0	monster	Picky	1049,50
+moc_fild10,0,0	monster	Picky	1050,50
+moc_fild10,0,0	monster	Magnolia	1138,1
+moc_fild10,0,0	monster	Ant Egg	1097,10
+moc_fild10,198,150,40,30	monster	Yellow Plant	1081,10,180000,90000
+moc_fild10,198,150,40,30	monster	Green Plant	1080,5,180000,90000
+
+
+//==================================================
+// moc_fild14 - Sograt Desert
+//==================================================
+moc_fild14,0,0,0,0	monster	Desert Wolf	1106,80,0,0,0
+moc_fild14,0,0,0,0	monster	Side Winder	1037,20,0,0,0
+moc_fild14,0,0,0,0	monster	Baby Desert Wolf	1107,40,0,0,0
+moc_fild14,0,0,0,0	monster	Magnolia	1138,25,0,0,0
+moc_fild14,124,93,5,5	monster	Shining Plant	1083,1,1800000,900000,1
+moc_fild14,85,271,0,0	monster	Yellow Plant	1081,1,180000,90000,1
+moc_fild14,165,282,0,0	monster	Yellow Plant	1081,1,180000,90000,1
+moc_fild14,149,333,0,0	monster	Yellow Plant	1081,1,180000,90000,1
+moc_fild14,64,342,0,0	monster	Yellow Plant	1081,1,180000,90000,1
+moc_fild14,160,366,0,0	monster	Yellow Plant	1081,1,180000,90000,1
+
+//==================================================
+// moc_fild15 - Sograt Desert
+//==================================================
+moc_fild15,0,0,0,0	monster	Hode	1127,30,0,0,0
+moc_fild15,0,0,0,0	monster	Scorpion	1001,10,0,0,0
+moc_fild15,0,0,0,0	monster	Desert Wolf	1106,10,0,0,0
+moc_fild15,0,0,0,0	monster	Magnolia	1138,25,0,0,0
+moc_fild15,0,0,0,0	monster	Andre	1095,40,0,0,0
+moc_fild15,0,0,0,0	monster	Ant Egg	1097,10,0,0,0
+moc_fild15,0,0,0,0	monster	Phreeoni	1159,1,7200000,3600000,1
+moc_fild15,40,126,0,0	monster	Yellow Plant	1081,1,180000,90000,1
+moc_fild15,57,39,0,0	monster	Yellow Plant	1081,1,180000,90000,1
+moc_fild15,46,250,0,0	monster	Yellow Plant	1081,1,180000,90000,1
+moc_fild15,104,347,0,0	monster	Yellow Plant	1081,1,180000,90000,1
+moc_fild15,195,373,0,0	monster	Yellow Plant	1081,1,180000,90000,1
+moc_fild15,341,365,0,0	monster	Yellow Plant	1081,1,180000,90000,1
+moc_fild15,353,230,0,0	monster	Yellow Plant	1081,1,180000,90000,1
+moc_fild15,341,164,0,0	monster	Yellow Plant	1081,1,180000,90000,1
+moc_fild15,370,85,0,0	monster	Yellow Plant	1081,1,180000,90000,1
+moc_fild15,158,144,0,0	monster	Yellow Plant	1081,1,180000,90000,1
+moc_fild15,232,126,0,0	monster	Yellow Plant	1081,1,180000,90000,1
+moc_fild15,294,74,0,0	monster	Yellow Plant	1081,1,180000,90000,1
+
+
+
+// Put back the Morocc shop npc's.
+morocc_in,22,20,7	shop	Sepulchral Merchant#A_moc	880,1771:-1
+morocc,147,102,4	shop	Tool Dealer#A_moc	93,1750:-1,611:-1,501:-1,502:-1,503:-1,504:-1,506:-1,645:-1,656:-1,601:-1,602:-1,1065:-1
+morocc,151,243,6	shop	Tool Dealer#A_moc2	99,1750:-1,611:-1,501:-1,502:-1,503:-1,504:-1,506:-1,645:-1,656:-1,601:-1,602:-1,1065:-1,2242:-1
+
+// Origional Item Colelctors had a Bill of Birds but left it out just in-case. (iRO Exp Quest?) 925:-1
+morocc,170,101,2	shop	Item Collector#A_moc	85,911:-1,528:-1,919:-1
+morocc,206,250,0	shop	Item Collector#A_moc2	85,911:-1,528:-1,919:-1
+
+morocc,166,51,2	shop	Jeweler#A_moc2	102,721:-1,723:-1,726:-1,728:-1,729:-1
+morocc,145,44,6	shop	Jeweler#A_moc	99,730:-1,2613:-1
+morocc,259,193,4	shop	Trader#A_moc4	99,747:-1
+morocc,35,69,6	shop	Trader#A_moc	89,2609:-1,1516:-1,1522:-1
+morocc,268,193,0	shop	Trader#A_moc5	93,748:-1
+morocc,139,92,6	shop	Trader#A_moc2	99,513:-1,513:-1,513:-1,513:-1,513:-1,513:-1
+morocc,244,134,5	shop	Trader#A_moc3	93,2612:-1
+morocc,269,167,4	shop	Pet Groomer#A_moc	125,537:-1,643:-1,10013:-1,10014:-1
+morocc,157,72,6	shop	Butcher#A_moc	85,517:-1
+
+// These three are present already.
+//morocc_in,141,67,0	shop	Weapon Dealer#A_moc	58,1750:-1,1751:-1,1701:-1,1601:-1,1201:-1,1204:-1,1207:-1,1210:-1,1213:-1,1216:-1,1219:-1,1222:-1,1250:-1,1252:-1,1254:-1
+//morocc_in,141,60,0	shop	Armor Dealer#A_moc	58,2101:-1,2103:-1,2401:-1,2403:-1,2405:-1,2501:-1,2503:-1,2218:-1,2301:-1,2303:-1,2305:-1,2321:-1,2328:-1,2332:-1,2307:-1,2309:-1,2335:-1,2628:-1
+//morocc_in,132,57,0	shop	Weapon Dealer#A_moc2	99,1146:-1,1245:-1
+
+morocc,120,97,5	shop	Chef Assistant#A_moc	86,7455:-1,7453:-1,7454:-1,7456:-1,7452:-1
+
+
+// Refiner
+morocc_in,71,41,4	script	Repairman#A_moc	99,{
+  callfunc "repairmain","Repairman";
+  end;
+}
+
+
+// Inn npcs.
+//======================== Morocc ====================================
+// North East --------------------------
+morocc_in,147,141,3	script	Inn Employee#Hasna	53,{
+
+	callfunc "F_InnMaid","[Employee Hasna]","Morroc Inn","morocc_in",142,140;
+	warp "morocc_in",173,135; end;
+}
+// South --------------------------------
+morocc_in,80,100,5	script	Inn Employee#Manar	53,{
+
+	callfunc "F_InnMaid","[Employee Manar]","Morroc Inn","morocc_in",78,95;
+	warp "morocc_in",79,123; end;
+}
+
+
+// Just putting the Thug NPC in morocc as a clone. It does not do anything important just tells people where rogue guild is.
+morocc,100,104,1	duplicate(Thug#rg)	Thug#A_moc	118
+
+
+// Townies
+
+// Morroc
+//============================================================
+morocc,68,260,0	script	Towner#Spencer	99,{
+	switch(rand(3)) {
+	case 1:
+	case 2:
+		mes "[Spencer]";
+		mes "You know...";
+		mes "Those giant, triangular buildings at the NorthWest corner of Morroc known are known to us as Pyramids...";
+		next;
+		mes "[Spencer]";
+		mes "Those things have been around here for thousands and thousands of years. No one knows when and why they were built, or who built them.";
+		next;
+		mes "[Spencer]";
+		mes "All we know is that tons of monsters live inside those weird buildings. You might wanna stay away from those really dangerous places.";
+		close;
+
+	Default:
+		mes "[Spencer]";
+		mes "Man...";
+		next;
+		mes "[Spencer]";
+		mes "Oh...";
+		mes "Oh man...";
+		next;
+		mes "[Spencer]";
+		mes "Man, I'm freaking bored!";
+		next;
+		mes "[Spencer]";
+		mes "Hey.";
+		mes "Let's play...";
+		mes "Rock, paper, scissors, yeah?";
+		next;
+		mes "[Spencer]";
+		mes "I feel it's fair to warn you, though, that here I'm the official regional champion of this time honored game of intellectual strategy.";
+		next;
+		if (select("Alright~:What...?!") == 1) {
+			mes "[Spencer]";
+			mes "Alright...";
+			mes "One, two...";
+			mes "Three!";
+			next;
+			switch(select("Rock:Paper:Scissors")) {
+			case 1:
+				switch(rand(3)) {
+				case 1:
+					Emotion e_rock;
+					mes "["+strcharinfo(0)+"]";
+					mes "Rock...!";
+					next;
+					mes "[Spencer]";
+					mes "What the...?!";
+					mes "I see great minds think alike! But then again, so do stupid minds...";
+					close;
+				case 2:
+					Emotion e_paper;
+					mes "["+strcharinfo(0)+"]";
+					mes "Rock...!";
+					next;
+					mes "[Spencer]";
+					mes "Looks like I win!";
+					mes "Heh heh~ Still got it.";
+					close;
+				Default:
+					Emotion e_scissors;
+					mes "["+strcharinfo(0)+"]";
+					mes "Rock...!";
+					next;
+					mes "[Spencer]";
+					mes "...What?!";
+					mes "No way!";
+					mes "How did I lose?!";
+					next;
+					mes "[Spencer]";
+					mes "So...";
+					mes "I see you're";
+					mes "not just a";
+					mes "mere rookie...";
+					close;
+				}
+			case 2:
+				switch(rand(3)) {
+				case 1:
+					Emotion e_rock;
+					mes "["+strcharinfo(0)+"]";
+					mes "Paper...!";
+					next;
+					mes "[Spencer]";
+					mes "It can't be...";
+					mes "Impossible...";
+					mes "I lost?!";
+					next;
+					mes "[Spencer]";
+					mes "You're not able";
+					mes "to read minds...";
+					mes "Are you?";
+					close;
+				case 2:
+					Emotion e_paper;
+					mes "["+strcharinfo(0)+"]";
+					mes "Paper...!";
+					next;
+					mes "[Spencer]";
+					mes "So...";
+					mes "It seems we are";
+					mes "evenly matched...";
+					next;
+					mes "[Spencer]";
+					mes "You are truly a";
+					mes "worthy opponent...";
+					close;
+				case 3:
+					Emotion e_scissors;
+					mes "["+strcharinfo(0)+"]";
+					mes "Paper...!";
+					next;
+					mes "[Spencer]";
+					mes "Bwah Hah Hah!";
+					mes "You lose!";
+					next;
+					mes "[Spencer]";
+					mes "Still...";
+					mes "That was too";
+					mes "close for comfort...";
+					next;
+					mes "[Spencer]";
+					mes "I...";
+					mes "I almost chose Rock...";
+					close;
+				}
+			case 3:
+				switch(rand(3)) {
+				case 1:
+					Emotion e_rock;
+					mes "["+strcharinfo(0)+"]";
+					mes "Scissors...!";
+					next;
+					mes "[Spencer]";
+					mes "BAM...!";
+					mes "Smashed you up!";
+					mes "Who's your daddy?!";
+					close;
+				case 2:
+					Emotion e_paper;
+					mes "["+strcharinfo(0)+"]";
+					mes "Scissors...!";
+					next;
+					mes "[Spencer]";
+					mes "It can't be...!";
+					mes "I've spent seven years training to get a black belt in this game!";
+					close;
+				case 3:
+					Emotion e_scissors;
+					mes "["+strcharinfo(0)+"]";
+					mes "Scissors...!";
+					next;
+					mes "[Spencer]";
+					mes "Uh oh...";
+					mes "Looks like";
+					mes "you've got the";
+					mes "eye of the tiger.";
+					next;
+					mes "[Spencer]";
+					mes "It may be a tie,";
+					mes "But next time...";
+					mes "I will crush you.";
+					close;
+				}
+			}
+		}
+		mes "[Spencer]";
+		mes "That's fine...";
+		mes "I understand if you're a little intimidated to take on ^7A378BThe Master^000000.";
+		close;
+	}
+}
+
+
+// Ant Man Akira =============================
+morocc,76,75,4	script	Ant Man Akira	47,{
+	mes "[Ant Man Akira]";
+	mes "About 1 map north and 3 maps east of Morroc, there lies the entrance to a cave known as ^ff0000ANTHELL^000000 ...";
+M_Menu:
+	next;
+	menu "'Anthell ?'",M_Anthell,"Ants?",M_Ants,"End conversation",M_End;
+
+	M_Anthell:
+		mes "[Ant Man Akira]";
+		mes "Anthell gets it's name from the fact that the cave is home to the largest colony of giant ants in Rune-Midgard.";
+		mes "There are litterally thousands of ants performing work for the colony while their queens lay hundreds and hundreds of eggs.";
+		next;
+		mes "[Ant Man Akira]";
+		mes "Many people go there to traine because of the numerous amounts of ant eggs.  But be carefull...";
+		next;
+		mes "[Ant Man Akira]";
+		mes "Attack an ant by mistake, and you'll find yourself surrounded by a swarm of them before you can even use a fly wing!";
+		emotion e_gasp;
+		goto M_Menu;
+	M_Ants:
+		mes "[Ant Man Akira]";
+		mes "There are 3 different kinds of Ant, each with a unique color and name.  Each one has a different role in the colony.";
+		mes "Andres are white, Pieres are green, and Deniros are red colored.  Their differences are not merely cosmetic however.";
+		next;
+		mes "[Ant Man Akira]";
+		mes "Andres are the weakest of the ants while Deniros are the most fiercesome of the ants.  Pieres lay somewhere in the middle.";
+		next;
+		mes "[Ant Man Akira]";
+		mes "Becarefull when your around them.  If you hit 1 Andre the other Andres in the area with swarm and attack you.";
+		mes "The same goes for Deniros and Pieres.  You should also know that ants are looters so watchout for your items.";
+		goto M_Menu;
+	M_End:
+		mes "[Ant Man Akira]";
+		mes "Before you go, let me tell you about Giearths.  They are not ants but they live in Anthell.  Don't underestimate them because of their small size.";
+		mes "They are extremely tough and should only be handled by high level wariors.";
+		next;
+		mes "[Ant Man Akira]";
+		mes "Well see ya around.";
+		close;
+}
+
+
+
+// Old Scholar ===============================
+morocc_in,112,122,2	script	Old Scholar	61,{
+	mes "[Old Scholar]";
+	mes "I've devoted my Life to researching the Pyramids.  Although I not found anything significant yet, I am confindent that I will find the Tomb of Ancient King, Osiris!";
+	next;
+
+	mes "[Old Scholar]";
+	mes "It is within the largest of the Morroc Pyramids, that the Greatest King in History sleeps the eternal sleep.  That is... if my memory serves me correctly......";
+	close;
+}
+
+
+// Drunk Man =================================
+morocc,44,180,8	script	Drunk Man	89,{
+	mes "[Drunk Man]";
+	mes "Heh Heh... (Hiccup)! Oh, Are you new here? Nice to meet ya, Buddy! So how was your trip?";
+	mes "This was predestined that you and I meet here, I tell you what (Hiccup). Let me tell you something I just heard from the pub....";
+	next;
+	mes "[Drunk Man]";
+	mes "It's rumored that there is a special Dagger that can bring great fortune to its owner.";
+	mes "There is a well-know Thief in Rune-Midgard that possesses this Dagger, and has never been caught";
+	next;
+	mes "[Drunk Man]";
+	mes "What I would give to get my hands something like that(Hiccup).  But only in my dreams....";
+	next;
+	mes "[Drunk Man]";
+	mes "How about you? Why don't you Look for it? It shouldn't be a problem for someone as brave as yourself?";
+	mes "Kekeke keke(Hiccup)! Buy me a drink later if you ever find that dagger.  Promise me, alright?(Hiccup!)";
+	emotion e_hmm;
+	close;
+}
+
+// Towner =================================
+morocc,68,260,8	script	Towner	99,{
+	mes "[Towner]";
+	mes "Those giant, Triangular Buildings North West of town are called Pyramids... They have been there for thousands and thousands of years.";
+	next;
+	mes "[Towner]";
+	mes "Nobody knows when and why they were built or who built them.  All we know for sure is that there are tons of Horrendous Monsters inside of them.";
+	next;
+	mes "[Towner]";
+	mes "I think you'd better stay away from them.  The monsters in the Pyramid LOVE to feed on strangers.  Kekekekek...";
+	close;
+}
+
+// Poring Lady Syvia ==================================
+morocc,79,111,2	script	Poring Lady Syvia	700,{
+	mes "[Poring Lady Syvia]";
+	mes "All over Rune-Midgard you can see lots of cute monsters such as Spores, the musroom type creature....";
+	next;
+	mes "[Poring Lady Syvia]";
+	mes "Or Pickys, desert chicks that wear egg shells on their heads and jump around in the Morrc Desert..!";
+	mes "However you can't deny that the ^FF8888Poring^000000 is the cutest and most popular creature in all of Rune-Midgard.";
+	next;
+	mes "[Poring Lady Syvia]";
+	mes "Although everybody knows about the common pink Poring, there are 2 Rare porings that live near Prontera and are getting a lot of attention.";
+	next;
+	mes "[Poring Lady Syvia]";
+	mes "They are the ^ffaa00Angeling^000000 and the ^5555ffGhostring^000000";
+M_Menu:
+	next;
+	menu "Angeling?",M_Angel,"Ghostring?",M_Ghost,"Quit Conversation",M_Quit;
+
+	M_Angel:
+		mes "[Poring Lady Syvia]";
+		mes "The Angeling is a poring with angel wings.  It is rarely seen but it is quite a sight.  Don't not be fooled by it's angelic look however.";
+		mes "It is a high level monster armed with the Holy property.  It is immune to almost all magic attacks except those of the neutral & shadow property.";
+		next;
+		mes "[Poring Lady Syvia]";
+		mes "Physical attacks are definately the way to go against these monsters.";
+		next;
+		mes "[Poring Lady Syvia]";
+		mes "Don't I know a lot about porings?  Quite frankly I'm in love with them.... =P";
+		goto M_Menu;
+
+	M_Ghost:
+		mes "[Poring Lady Syvia]";
+		mes "The Ghostring is an evil ghost poring.  It is rarely seen and luckly so.";
+		next;
+		mes "[Poring Lady Syvia]";
+		mes "It is a high-level monster armed with the ghost property.  This makes it immume to physical attacks.  So Archers, Swordsman, and Thieves beware!";
+		mes "Only weapons with elemental properites will work on Ghostrings.  Of course magic attacks work very well on them also.";
+		next;
+		mes "[Poring Lady Syvia]";
+		mes "Don't I know a lot about porings?  Quite frankly I'm in love with them.... =P";
+		goto M_Menu;
+
+	M_Quit:
+		mes "[Poring Lady Syvia]";
+		mes "OMG!";
+		emotion e_omg;
+		next;
+		mes "[Poring Lady Syvia]";
+		mes "You dare dismiss a poring expert such as myself? I am proud of my knowledge about all things poring!!";
+		next;
+		mes "[Poring Lady Syvia]";
+		mes "Hmf!";
+		emotion e_pif;
+		close;
+}
+
+// Slayer Kid ====================================
+morocc,123,58,4	script	Slayer Kid	118,{
+	mes "[Slayer Kid]";
+	mes ".... An expert in hand to hand combat who polishes off enemies quickly and quietly....";
+	next;
+	mes "[Slayer Kid]";
+	mes "That is the ^ff00ffAssassin^000000!!";
+M_Menu:
+	next;
+	menu "Hmm??",M_0,"Where can I find the Assassin Clan?",M_1,"End conversation",M_End;
+
+	M_0:
+		mes "[Slayer Kid]";
+		mes "Assassins are a secretive group of elite killers.  People say Assassins are highly trained in 'eliminating' their targets without leaving a trace.";
+		next;
+		mes "[Slayer Kid]";
+		mes "It's been 3 months since I left home to search for the Assassin clan.... Just where are they??!!!";
+		goto M_Menu;
+	M_1:
+		mes "[Slayer Kid]";
+		mes "People say that if you go 2 maps on the east of Morroc, then 2 maps south, you'll be able to find the Assassin Clan.";
+		next;
+		mes "[Slayer Kid]";
+		mes "If you are granted an Assassin Cross, the emblem of the clan master, you will be allowed to become an Assassin.";
+		mes "The Assassin Cross is a high honor and is given to the best Assassin among Assassins!";
+		next;
+		mes "[Slayer Kid]";
+		mes "To tell you the truth however... I don't think they the clan really exists...";
+		next;
+		mes "[Slayer Kid]";
+		mes "I've been searching for them for over 3 months now and nothing.  It seems almost impossible for me to become an Assassin now......";
+		goto M_Menu;
+	M_End:
+		close;
+
+}
+
+
+
+// Lapidary =======================================
+morocc,150,50,8	script	Lapidary	99,{
+	mes "[Lapidary]";
+	mes "The Queen of Jewelry is the Diamond.  No one can deny its beautiful appearance.  That's why it cost so much to buy...";
+	next;
+	mes "[Lapidary]";
+	mes "Many factors increase its value, with the most important factor being size.";
+	next;
+	mes "[Lapidary]";
+	mes "A high quality Diamond should be perfect and not chipped or cracked in any way.";
+	close;
+}
+
+
+// Uncle Dimitrii ==========================================
+morocc,180,155,4	script	Uncle Dimitri	49,{
+	mes "[Uncle Dimitrii]";
+	mes "The avarage temperature in the Morroc Desert is many times higher than anywhere else in the Rune-Midgard Kingdom.";
+	next;
+	mes "[Uncle Dimitrii]";
+	mes "Be carefull of where you choose to sit down and rest.  Choose the wrong spot and your butt may catch on fire!!";
+M_Menu:
+	next;
+	menu "About the Desert sand",M_1,"About the remedy for Fatigue",M_2,"End conversation",M_End;
+
+	M_1:
+		mes "[Uncle Dimitri]";
+		mes ". . . . . Well";
+		next;
+		mes "[Uncle Dimitri]";
+		mes "It's SUPPOSED to be HOT!!! But it actually isn't really that hot.....";
+		next;
+		mes "[Uncle Dimitri]";
+		mes "For some odd reason the sand in the Morroc desert doesn't conduct as much heat as the sand in other deserts.";
+		mes "Instead of being scorching hot, the sand just feels warm.... so it's ok for you to sit down for a good rest";
+		next;
+		mes "[Uncle Dimitri]";
+		mes "So everybody can recover their HP and SP without fear of catching on fire.";
+		goto M_Menu;
+	M_2:
+		mes "[Uncle Dimitri]";
+		mes "Aaaaahhh!!!!";
+		next;
+		mes "[Uncle Dimitri]";
+		mes "Nothing beats desert fatigue like a couple of potions! The ^ff0000Red^000000 ones are especially populare because of their low cost and light weight.";
+		next;
+		mes "[Uncle Dimitri]";
+		mes "They only recover a small amount of hp, but combined with a dip in a desert oasis, a couple ^ff0000Reds^000000 are all you need.";
+		goto M_Menu;
+	M_End:
+		mes "[Uncle Dimitri]";
+		mes "Did you know that you can get ^0000bb'Empty Bottle'^000000 from a 'PecoPeco's Egg'? I wonder how that works......?";
+		close;
+}
+
+// Trader Joe =====================================
+morocc,208,85,7	script	Trader Joe	83,{
+	mes "[Trader Joe]";
+	mes "I earn a living as a Trader so I'm constantly traveling between Morroc and Prontera.";
+	mes "I can't even count how many times I've been across the Hot, Dry desert.";
+	next;
+	mes "[Trader Joe]";
+	mes "One day, while I was out in the Desert, I unexpectedly ran out of water and became extremely thirsty.";
+	mes "I was desperate so I decided to try to get some water out of a cactus when.......";
+	next;
+	mes "[Trader Joe]";
+	mes "ALL OF THE SUDDEN!!! The cactus let out this LOUD SCREAM and started to SHOOT its NEEDLES at me!!";
+	emotion e_omg;
+	next;
+	mes "[Trader Joe]";
+	mes "It was THE WORST experience of my ENTIRE LIFE.";
+	next;
+	mes "[Trader Joe]";
+	mes "I figured out later that it wasn't a normal cactus that attacked me but it was ^00cc00Muka^000000, the cactus monster.";
+	next;
+	mes "[Trader Joe]";
+	mes "So be carefull the next time you're out in the desert.  You don't want to make the same mistake I made. (~Sigh~)";
+	close;
+}
+
+// Fly Man Armani ===============================
+morocc,234,273,3	script	Fly Man Armani	54,{
+	mes "[Fly Man Armani]";
+	mes "I SAW IT!! I SAW IT!!!";
+	emotion e_ic;
+	next;
+	mes "[Fly Man Armani]";
+	mes "I saw the rare ^ff0000Dragon Fly^000000 just South of here! It was incredible!!";
+	next;
+	menu "What... Dragon Fly?!",M_0,"So what?",M_1;
+
+	M_0:
+		mes "[Fly Man Armani]";
+		mes "It is the boss of desert flies and its much stronger than any other ordanary fly.";
+		mes "It's a rare sight to behold, and for anybody strong enough and lucky enough to defeat it.... ";
+		next;
+		mes "[Fly Man Armani]";
+		mes "The Dragon Fly may even drop an UTLRA RARE item called a ^0000ddClip^000000!";
+		mes "Clips are items that you can attach to weapons, armor, and almost everykind of accessory.";
+		next;
+		mes "[Fly Man Armani]";
+		mes "Clips are ^ffaa00slotted^000000 and therefore you can insert cards into them.  That's what makes them so valuable.";
+		mes "It seems like everyone is yearning for a clip these days.";
+		next;
+		mes "[Fly Man Armani]";
+		mes "Say.... why don't YOU challenge the Dragon Fly?";
+		emotion e_hmm;
+		close;
+	M_1:
+		mes "[Fly Man Armani]";
+		mes "SO WHAT!!??";
+		emotion e_omg;
+		next;
+		mes "[Fly Man Armani]";
+		mes "Do you dare underestimate the Dragon Fly??  Bleh! It may be a fly, but I gaurantee you THIS FLY is more than you can handle!";
+		emotion e_pif;
+		next;
+		mes "[Fly Man Armani]";
+		mes "No matter.  If you ARE fortunate enough to run into it, you'll quickly see what I mean.  Afterall, it IS the FLY of ALL FLIES!!!!";
+		next;
+		mes "[Fly Man Armani]";
+		mes "^ff0000Dragon Fly^000000.  Remeber this name well!!";
+		close;
+}
+
+// Uncle Phlanette ================================
+morocc,277,213,4	script	Uncle Phlanette	48,{
+	mes "[Uncle Phlanette]";
+	mes "Morroc is a highly dry region surrounded by desert.  There isn't a place as hot or dry as Morroc anywhere in Rune-Midgard.";
+M_Menu:
+	next;
+	menu "Desert Story",M_0,"Quit Coversation",M_End;
+
+	M_0:
+		mes "[Uncle Phlanette]";
+		mes "Let me tell you a little about the desert.....";
+		next;
+		mes "[Uncle Phlanette]";
+		mes "You see the desert is a place that is bare of vegetation due to low rainfall and a high evaporation rate.";
+		mes "Even so there are plants that seem to thrive in the desert.  And where there are plants, there are animals.";
+		next;
+		mes "[Uncle Phlanette]";
+		mes "So even with the high temperatutres, and limited water, living creatures still find a way to survive in the desert.";
+		next;
+		mes "[Uncle Phlanette]";
+		mes "Unfortunately, for unkown reasons, some of the plants and animals in the desert have turned into dangerous monsters.";
+		mes "The ^00cc00'Mukas'^000000 are one of those mosters.  They were originaly cactus plants.";
+		goto M_Menu;
+	M_End:
+		mes "[Uncle Phlanette]";
+		mes "Sand HERE! Sand THERE! Sand EVERYWHERE!!!!";
+		emotion e_gasp;
+		next;
+		mes "[Uncle Phlanette]";
+		mes "(~Sigh~) I'm SICK and TIRED of this sand and desert...";
+		next;
+		mes "[Uncle Phlantette]";
+		mes "Morroc......!! I HATE YOU!!!!!!";
+		emotion e_pif;
+		close;
+}
+
+
+// Mr. Smile
+morocc,158,97,4	duplicate(SmileHelper)	Smile Assistance#A_moc	92
+
+// OBB Quest
+moc_ruins,107,62,0	duplicate(Tommy#thai)	Tommy#A_thai	716
+morocc,230,150,0	duplicate(Jacob#thai)	Jacob#A_thai	50
+
+// Stop Post Quest
+morocc_in,142,100,4	duplicate(William)	William#A_William	89
+
+// Binoculars Quest
+morocc_in,76,163,4	duplicate(Alchemist)	Alchemist#A_Alchemist	64
+
+// TODO: quests_nameless.
+//
+// morocc,167,106,3	script	Foreign Merchant#aru1	880,5,5
+// moc_ruins,77,167,4	script	Foreign Merchant#aru1	880,5,5
+//
+// morocc,159,142,0	script	#ForeignMerchant1	-1,3,3
+// moc_ruins,86,149,0	script	#ForeignMerchant1	-1,3,3
+//
+// morocc,147,151,0	script	#ForeignMerchant2	-1,3,3
+// moc_ruins,88,136,0	script	#ForeignMerchant2	-1,3,3
+//
+// morocc,160,160,0	script	#ForeignMerchant3	-1,3,3
+// moc_ruins,106,133,0	script	#ForeignMerchant3	-1,3,3
+//
+// morocc,151,5,0	script	#ForeignMerchant4	-1,3,3
+// moc_ruins,115,147,0	script	#ForeignMerchant4	-1,3,3
+//
+// morocc,140,160,7	script	Foreign Merchant#aru2	929
+// moc_ruins,101,133,7	script	Foreign Merchant#aru2	929
+//
+// //Incorrect position.
+// moc_ruins,78,167,3	script	Suspicious Man#2	99,2,2
+
+// TODO: quests_veins
+// moc_castle,137,88,2	script	Prison Ward#sch	707
+// morocc,53,87,7	script	Prison Ward#sch	707
+//
+// moc_castle,173,122,0	script	Public Security Officer	748
+// morocc_in,79,163,0	script	Public Security Officer	748
+//
+// ra_in01,48,352,0	warp	que_sch_jail	1,1,moc_castle,136,86
+// ra_in01,48,352,0	warp	que_sch_jail	1,1,morocc,56,89
+
+
+// Archer Quest Skill
+morocc,121,109,5	duplicate(Roberto)	Roberto#A_qsk_ac	88
+
+
+// DTS Dungeon warping voting staff.
+morocc,156,116,6	script	Kafra Voting Staff#A_moc	112,{
+	callfunc "F_VoteKafra",2;
+}
+
+morocc,163,116,4	duplicate(VotingStaffCCE)	Cool Event Staff#A_moc	874
+
