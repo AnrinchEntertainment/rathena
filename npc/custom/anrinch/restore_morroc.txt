@@ -116,6 +116,13 @@ OnInit:
 	disablenpc "ConMessenger";
 	disablenpc "Continental Official";
 
+	disablenpc "Continental Messenger#01";
+	disablenpc "Continental Messenger#02";
+	disablenpc "Continental Messenger#03";
+	disablenpc "Continental Messenger#04";
+	disablenpc "Continental Messenger#05";
+
+
 	disablenpc "Morocc Timer#edq";
 	disablenpc "Satan Broadcast#edq";
 	disablenpc "Book-Touching Man#garas";
