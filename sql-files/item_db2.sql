@@ -91,6 +91,6 @@ CREATE TABLE `item_db2` (
 
 # Old Tuxedo and Wedding Dress, will display the outfit when worn.
 #==================================================================
-#REPLACE INTO `item_db2` VALUES (2338,'Wedding_Dress','Wedding Dress',4,43000,NULL,500,NULL,0,NULL,0,0xFFFFFFFE,7,0,16,NULL,0,1,0,NULL,'setoption Option_Wedding,1;','setoption Option_Wedding,0;');
-#REPLACE INTO `item_db2` VALUES (7170,'Tuxedo','Tuxedo',4,43000,NULL,10,NULL,0,NULL,0,0xFFFFFFFE,7,1,16,NULL,0,1,0,NULL,'setoption Option_Wedding,1;','setoption Option_Wedding,0;');
+REPLACE INTO `item_db2` VALUES (2338,'Wedding_Dress','Wedding Dress',4,43000,NULL,500,NULL,0,NULL,0,0xFFFFFFFE,7,0,16,NULL,0,1,0,NULL,'setoption Option_Wedding,1;','setoption Option_Wedding,0;');
+REPLACE INTO `item_db2` VALUES (7170,'Tuxedo','Tuxedo',4,43000,NULL,10,NULL,0,NULL,0,0xFFFFFFFE,7,1,16,NULL,0,1,0,NULL,'setoption Option_Wedding,1;','setoption Option_Wedding,0;');
 
