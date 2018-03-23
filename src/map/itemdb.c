@@ -1650,10 +1650,14 @@ static bool itemdb_read_randomopt(const char* basedir, bool silent) {
 				uidb_put(itemdb_randomopt, id, data);
 			}
 			data->id = id;
+			
 			if ((code = parse_script(str[1], path, lines, 0)) == NULL) {
-				ShowWarning("itemdb_read_randomopt: Invalid script on option ID #%d.\n", id);
+				if (strcmp(str[1], "{}") != 0) {
+					ShowWarning("itemdb_read_randomopt: Invalid script on option ID #%d. %s '%s'\n", id, str[0], str[1]);
+				}
 				continue;
 			}
+			
 			if (data->script) {
 				script_free_code(data->script);
 				data->script = NULL;

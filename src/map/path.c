@@ -490,6 +490,22 @@ bool check_distance_client(int dx, int dy, int distance)
 	return (distance_client(dx,dy) <= distance);
 }
 
+float Q_rsqrt(float number)
+{
+	long i;
+	float x2, y;
+	const float threehalfs = 1.5F;
+
+	x2 = number * 0.5F;
+	y = number;
+	i = *(long *)&y;
+	i = 0x5f3759df - (i >> 1);
+	y = *(float *)&i;
+	y = y * (threehalfs - (x2 * y * y));
+
+	return y;
+}
+
 /**
  * The client uses a circular distance instead of the square one. The circular distance
  * is only used by units sending their attack commands via the client (not monsters).
@@ -499,13 +515,16 @@ bool check_distance_client(int dx, int dy, int distance)
  */
 int distance_client(int dx, int dy)
 {
-	double temp_dist = sqrt((double)(dx*dx + dy*dy));
+	//return distance(dx, dy);
+	
+	//double temp_dist = sqrt((double)(dx*dx + dy*dy));
+	float temp_dist = Q_rsqrt((float)(dx*dx + dy*dy));
 
 	//Bonus factor used by client
 	//This affects even horizontal/vertical lines so they are one cell longer than expected
-	temp_dist -= 0.0625;
+	temp_dist += 0.0625;
 
 	if(temp_dist < 0) temp_dist = 0;
-
-	return ((int)temp_dist);
+	
+	return ((int)temp_dist); // Truncates result.
 }

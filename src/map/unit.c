@@ -1704,7 +1704,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 	if(ud->stepaction || ud->steptimer != INVALID_TIMER)
 		unit_stop_stepaction(src);
 	// Remember the skill request from the client while walking to the next cell
-	if(src->type == BL_PC && ud->walktimer != INVALID_TIMER && !battle_check_range(src, target, range-1)) {
+	if(src->type == BL_PC && ud->walktimer != INVALID_TIMER && !battle_check_range(src, target, range)) {
 		ud->stepaction = true;
 		ud->target_to = target_id;
 		ud->stepskill_id = skill_id;
@@ -2538,7 +2538,7 @@ static int unit_attack_timer_sub(struct block_list* src, int tid, unsigned int t
 		&& (target->type == BL_PC || !map_getcell(target->m,target->x,target->y,CELL_CHKICEWALL)) )
 		range++; // Extra range when chasing (does not apply to mobs locked in an icewall)
 
-	if(sd && !check_distance_client_bl(src,target,range)) {
+	if(sd && !check_distance_client_bl(src,target,range+1)) {
 		// Player tries to attack but target is too far, notify client
 		clif_movetoattack(sd,target);
 		return 1;

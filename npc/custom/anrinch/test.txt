@@ -1,0 +1,35 @@
+// Magic Gear Renter
+payon,159,208,3	script	MagicRental	709,{
+mes "[Magic Gear Master]";
+if (Class == Job_Mechanic || Class == Job_Mechanic_T || Class == Job_Baby_Mechanic) {
+ mes "Welcome. Would you like to rent a Magic Gear?";
+ next;
+ switch(select("Yes:No")) {
+ case 1:
+  if (!getskilllv("NC_MADOLICENCE")) {
+mes "[Magic Gear Master]";
+mes "Please learn how to use a Magic Gear first.";
+close;
+  }
+  else if (checkmadogear()) {
+mes "[Magic Gear Master]";
+mes "You already have a Magic Gear.";
+close;
+  }
+  else if(ismounting()) {
+mes "[Magic Gear Master]";
+mes "Please remove your cash mount.";
+close;
+  }
+  setmadogear;
+  close;
+ case 2:
+  mes "[Magic Gear Master]";
+  mes "I see. Then have a great day.";
+  close;
+ }
+}
+mes "How may I help you?";
+mes "Magic Gears are only available for Mechanics.";
+close;
+}

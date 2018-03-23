@@ -2017,6 +2017,9 @@ void mob_setdropitem_option(struct item *itm, struct s_mob_drop *mobdrop) {
 	if ((g = itemdb_randomopt_group_exists(mobdrop->randomopt_group)) && g->total) {
 		int r = rnd()%g->total;
 		if (&g->entries[r]) {
+			if (*&g->entries[r].option->id == RDMOPT_EMPTY) {
+				return;
+			}
 			memcpy(&itm->option, &g->entries[r], sizeof(itm->option));
 			return;
 		}

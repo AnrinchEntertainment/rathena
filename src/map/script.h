@@ -680,6 +680,9 @@ enum navigation_service {
 	NAV_ALL = NAV_AIRSHIP_ONLY + NAV_SCROLL_ONLY + NAV_KAFRA_ONLY ///< 111 (actually 111-255)
 };
 
+// A special type of option to let us drop normal gear.
+#define RDMOPT_EMPTY 344
+
 enum random_option_attribute {
 	ROA_ID = 0,
 	ROA_VALUE,
