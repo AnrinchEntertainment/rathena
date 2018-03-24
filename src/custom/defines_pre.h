@@ -8,6 +8,6 @@
  * For detailed guidance on these check http://rathena.org/wiki/SRC/config/
  **/
 
-
+#define PACKETVER 20150916
 
 #endif // _CONFIG_CUSTOM_DEFINES_PRE_H_

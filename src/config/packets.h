@@ -9,8 +9,10 @@
  **/
 
 #ifndef PACKETVER
-	//#define PACKETVER 20151104
-    #define PACKETVER 20150916
+	/// Do NOT edit this line! To set your client version, please do this instead:
+	/// In Windows: Add this line in your src\custom\defines_pre.h file: #define PACKETVER YYYYMMDD
+	/// In Linux: The same as above or run the following command: ./configure --enable-packetver=YYYYMMDD
+	#define PACKETVER 20151104
 #endif
 
 #ifndef PACKETVER_RE

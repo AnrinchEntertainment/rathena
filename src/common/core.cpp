@@ -20,7 +20,7 @@
 #ifndef _WIN32
 #include <unistd.h>
 #else
-#include "winapi.h" // Console close event handling
+#include "winapi.hpp" // Console close event handling
 #include <direct.h> // _chdir
 #endif
 
@@ -148,12 +148,10 @@ void signals_init (void) {
 }
 #endif
 
-#ifdef SVNVERSION
-const char *get_svn_revision(void) {
-		return EXPAND_AND_QUOTE(SVNVERSION);
-	}
-#else// not SVNVERSION
 const char* get_svn_revision(void) {
+#ifdef SVNVERSION
+	return EXPAND_AND_QUOTE(SVNVERSION);
+#else// not SVNVERSION
 	static char svn_version_buffer[16] = "";
 	FILE *fp;
 
@@ -244,8 +242,8 @@ const char* get_svn_revision(void) {
 	// fallback
 	svn_version_buffer[0] = UNKNOWN_VERSION;
 	return svn_version_buffer;
-}
 #endif
+}
 
 // Grabs the hash from the last time the user updated their working copy (last pull)
 const char *get_git_hash (void) {
@@ -305,10 +303,16 @@ static void display_title(void) {
 // Warning if executed as superuser (root)
 void usercheck(void)
 {
-#ifndef _WIN32
-    if (geteuid() == 0) {
+#if !defined(BUILDBOT)
+#ifdef _WIN32
+	if (IsCurrentUserLocalAdministrator()) {
+		ShowWarning("You are running rAthena with admin privileges, it is not necessary.\n");
+	}
+#else
+	if (geteuid() == 0) {
 		ShowWarning ("You are running rAthena with root privileges, it is not necessary.\n");
-    }
+	}
+#endif
 #endif
 }
 

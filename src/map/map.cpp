@@ -1,6 +1,11 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
+#include "map.hpp"
+
+#include <stdlib.h>
+#include <math.h>
+
 #include "../common/cbasetypes.h"
 #include "../common/core.h"
 #include "../common/timer.h"
@@ -15,39 +20,34 @@
 #include "../common/cli.h"
 #include "../common/ers.h"
 
-#include "map.h"
-#include "path.h"
-#include "chrif.h"
-#include "clan.h"
-#include "clif.h"
-#include "duel.h"
-#include "intif.h"
-#include "npc.h"
-#include "pc.h"
-#include "chat.h"
-#include "storage.h"
-#include "trade.h"
-#include "party.h"
-#include "battleground.h"
-#include "quest.h"
-#include "mapreg.h"
-#include "pet.h"
-#include "homunculus.h"
-#include "instance.h"
-#include "mercenary.h"
-#include "elemental.h"
-#include "cashshop.h"
-#include "channel.h"
-#include "achievement.h"
-
-#include <stdlib.h>
-#include <math.h>
-#ifndef _WIN32
-#endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "path.hpp"
+#include "chrif.hpp"
+#include "clan.hpp"
+#include "clif.hpp"
+#include "duel.hpp"
+#include "intif.hpp"
+#include "npc.hpp"
+#include "pc.hpp"
+#include "chat.hpp"
+#include "storage.hpp"
+#include "trade.hpp"
+#include "party.hpp"
+#include "battleground.hpp"
+#include "quest.hpp"
+#include "mapreg.hpp"
+#include "pet.hpp"
+#include "homunculus.hpp"
+#include "instance.hpp"
+#include "mercenary.hpp"
+#include "elemental.hpp"
+#include "cashshop.hpp"
+#include "channel.hpp"
+#include "achievement.hpp"
+#include "guild.hpp"
+#include "atcommand.hpp"
+#include "battle.hpp"
+#include "log.hpp"
+#include "mob.hpp"
 
 char default_codepage[32] = "";
 
@@ -115,7 +115,9 @@ static int block_free_count = 0, block_free_lock = 0;
 static struct block_list *bl_list[BL_LIST_MAX];
 static int bl_list_count = 0;
 
-#define MAP_MAX_MSG 1550
+#ifndef MAP_MAX_MSG
+	#define MAP_MAX_MSG 1550
+#endif
 
 struct map_data map[MAX_MAP_PER_SERVER];
 int map_num = 0;
@@ -161,6 +163,16 @@ char help_txt[256] = "conf/help.txt";
 char help2_txt[256] = "conf/help2.txt";
 char charhelp_txt[256] = "conf/charhelp.txt";
 char channel_conf[256] = "conf/channels.conf";
+
+const char *MSG_CONF_NAME_RUS;
+const char *MSG_CONF_NAME_SPN;
+const char *MSG_CONF_NAME_GRM;
+const char *MSG_CONF_NAME_CHN;
+const char *MSG_CONF_NAME_MAL;
+const char *MSG_CONF_NAME_IDN;
+const char *MSG_CONF_NAME_FRN;
+const char *MSG_CONF_NAME_POR;
+const char *MSG_CONF_NAME_THA;
 
 char wisp_server_name[NAME_LENGTH] = "Server"; // can be modified in char-server configuration file
 
@@ -401,17 +413,20 @@ int map_moveblock(struct block_list *bl, int x1, int y1, unsigned int tick)
 		sc = status_get_sc(bl);
 
 		skill_unit_move(bl,tick,2);
-		status_change_end(bl, SC_CLOSECONFINE, INVALID_TIMER);
-		status_change_end(bl, SC_CLOSECONFINE2, INVALID_TIMER);
-		status_change_end(bl, SC_TINDER_BREAKER, INVALID_TIMER);
-		status_change_end(bl, SC_TINDER_BREAKER2, INVALID_TIMER);
-//		status_change_end(bl, SC_BLADESTOP, INVALID_TIMER); //Won't stop when you are knocked away, go figure...
-		status_change_end(bl, SC_TATAMIGAESHI, INVALID_TIMER);
-		status_change_end(bl, SC_MAGICROD, INVALID_TIMER);
-		status_change_end(bl, SC_SU_STOOP, INVALID_TIMER);
-		if (sc->data[SC_PROPERTYWALK] &&
-			sc->data[SC_PROPERTYWALK]->val3 >= skill_get_maxcount(sc->data[SC_PROPERTYWALK]->val1,sc->data[SC_PROPERTYWALK]->val2) )
-			status_change_end(bl,SC_PROPERTYWALK,INVALID_TIMER);
+		if ( sc && sc->count ) //at least one to cancel
+		{
+			status_change_end(bl, SC_CLOSECONFINE, INVALID_TIMER);
+			status_change_end(bl, SC_CLOSECONFINE2, INVALID_TIMER);
+			status_change_end(bl, SC_TINDER_BREAKER, INVALID_TIMER);
+			status_change_end(bl, SC_TINDER_BREAKER2, INVALID_TIMER);
+	//		status_change_end(bl, SC_BLADESTOP, INVALID_TIMER); //Won't stop when you are knocked away, go figure...
+			status_change_end(bl, SC_TATAMIGAESHI, INVALID_TIMER);
+			status_change_end(bl, SC_MAGICROD, INVALID_TIMER);
+			status_change_end(bl, SC_SU_STOOP, INVALID_TIMER);
+			if (sc->data[SC_PROPERTYWALK] &&
+				sc->data[SC_PROPERTYWALK]->val3 >= skill_get_maxcount(sc->data[SC_PROPERTYWALK]->val1,sc->data[SC_PROPERTYWALK]->val2) )
+				status_change_end(bl,SC_PROPERTYWALK,INVALID_TIMER);
+		}
 	} else
 	if (bl->type == BL_NPC)
 		npc_unsetcells((TBL_NPC*)bl);
@@ -697,9 +712,9 @@ int map_foreachinareaV(int(*func)(struct block_list*, va_list), int16 m, int16 x
 		return 0;
 
 	if (x1 < x0)
-		swap(x0, x1);
+		SWAP(x0, x1);
 	if (y1 < y0)
-		swap(y0, y1);
+		SWAP(y0, y1);
 
 	x0 = i16max(x0, 0);
 	y0 = i16max(y0, 0);
@@ -863,9 +878,9 @@ int map_forcountinarea(int (*func)(struct block_list*,va_list), int16 m, int16 x
 		return 0;
 
 	if ( x1 < x0 )
-		swap(x0, x1);
+		SWAP(x0, x1);
 	if ( y1 < y0 )
-		swap(y0, y1);
+		SWAP(y0, y1);
 
 	x0 = i16max(x0, 0);
 	y0 = i16max(y0, 0);
@@ -930,9 +945,9 @@ int map_foreachinmovearea(int (*func)(struct block_list*,va_list), struct block_
 	y1 = center->y + range;
 
 	if ( x1 < x0 )
-		swap(x0, x1);
+		SWAP(x0, x1);
 	if ( y1 < y0 )
-		swap(y0, y1);
+		SWAP(y0, y1);
 
 	if( dx == 0 || dy == 0 ) {
 		//Movement along one axis only.
@@ -1158,9 +1173,9 @@ int map_foreachinpath(int (*func)(struct block_list*,va_list),int16 m,int16 x0,i
 
 	//The two fors assume mx0 < mx1 && my0 < my1
 	if ( mx0 > mx1 )
-		swap(mx0, mx1);
+		SWAP(mx0, mx1);
 	if ( my0 > my1 )
-		swap(my0, my1);
+		SWAP(my0, my1);
 
 	mx0 = max(mx0, 0);
 	my0 = max(my0, 0);
@@ -1308,9 +1323,9 @@ int map_foreachindir(int(*func)(struct block_list*, va_list), int16 m, int16 x0,
 
 	//The following assumes mx0 < mx1 && my0 < my1
 	if (mx0 > mx1)
-		swap(mx0, mx1);
+		SWAP(mx0, mx1);
 	if (my0 > my1)
-		swap(my0, my1);
+		SWAP(my0, my1);
 
 	//Apply width to the path by turning 90 degrees
 	mx0 -= abs(range*dirx[(dir + 2) % 8]);
@@ -1501,7 +1516,7 @@ int map_clearflooritem_timer(int tid, unsigned int tick, int id, intptr_t data)
 	}
 
 
-	if (search_petDB_index(fitem->item.nameid, PET_EGG) >= 0)
+	if (pet_db_search(fitem->item.nameid, PET_EGG))
 		intif_delete_petdata(MakeDWord(fitem->item.card[1], fitem->item.card[2]));
 
 	clif_clearflooritem(fitem, 0);
@@ -2704,7 +2719,7 @@ int map_addmobtolist(unsigned short m, struct spawn_data *spawn)
 	if( i < MAX_MOB_LIST_PER_MAP )
 	{
 		map[m].moblist[i] = spawn;
-		return i;
+		return static_cast<int>(i);
 	}
 	return -1;
 }
@@ -4397,7 +4412,7 @@ void do_final(void)
 	do_final_pet();
 	do_final_homunculus();
 	do_final_mercenary();
-	do_final_mob();
+	do_final_mob(false);
 	do_final_msg();
 	do_final_skill();
 	do_final_status();
@@ -4770,6 +4785,3 @@ int do_init(int argc, char *argv[])
 	return 0;
 }
 
-#ifdef __cplusplus
-}
-#endif

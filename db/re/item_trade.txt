@@ -829,6 +829,8 @@
 6752,467,100	// Charleston_Parts
 6753,507,100	// Token_Of_Destruction
 6754,507,100	// Collected_Medicinal_Herbs
+6756,507,100	// Cohesive_Energy
+6757,507,100	// The_Memory_Recorder
 6766,499,100	// Ice_World_Ticket
 6767,499,100	// Summer_Fes_Coin
 6768,499,100	// Red_Beans_Of_Ice
@@ -914,7 +916,7 @@
 6916,499,100	// Piece_Of_Soul_Monkey
 6917,499,100	// Piece_Of_Soul_Chicken
 6919,499,100	// Honor_Proof
-//6920,467,100	//
+6920,499,100	// Rune_Magic_Powder
 6923,499,100	// Bright_Fire_Lights
 6925,499,100	// Letter_Of_Prisoner
 6926,499,100	// Rune-Midgard_History_Book

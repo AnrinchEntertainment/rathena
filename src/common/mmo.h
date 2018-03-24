@@ -34,12 +34,20 @@
 #define MAX_INVENTORY 100 ///Maximum items in player inventory
 /** Max number of characters per account. Note that changing this setting alone is not enough if the client is not hexed to support more characters as well.
 * Max value tested was 265 */
-#define MAX_CHARS 9 
+#ifndef MAX_CHARS
+	#if PACKETVER >= 20180124
+		#define MAX_CHARS 15
+	#elif PACKETVER >= 20100413
+		#define MAX_CHARS 12
+	#else
+		#define MAX_CHARS 9
+	#endif
+#endif
 /** Number of slots carded equipment can have. Never set to less than 4 as they are also used to keep the data of forged items/equipment. [Skotlex]
 * Note: The client seems unable to receive data for more than 4 slots due to all related packets having a fixed size. */
 #define MAX_SLOTS 4
 #define MAX_AMOUNT 30000 ////Max amount of a single stacked item
-#define MAX_ZENY 1000000000 ///Max zeny
+#define MAX_ZENY INT_MAX ///Max zeny
 #define MAX_BANK_ZENY SINT32_MAX ///Max zeny in Bank
 #define MAX_FAME 1000000000 ///Max fame points
 #define MAX_CART 100 ///Maximum item in cart
@@ -131,7 +139,6 @@
 //Mercenary System
 #define MC_SKILLBASE 8201
 #define MAX_MERCSKILL 40
-#define MAX_MERCENARY_CLASS 61
 
 //Elemental System
 #define MAX_ELEMENTALSKILL 42
@@ -143,8 +150,8 @@
 
 //Achievement System
 #define MAX_ACHIEVEMENT_RANK 20 /// Maximum achievement level
-#define MAX_ACHIEVEMENT_OBJECTIVES 10 /// Maximum different objectives in achievement_db.conf
-#define MAX_ACHIEVEMENT_DEPENDENTS 20 /// Maximum different dependents in achievement_db.conf
+#define MAX_ACHIEVEMENT_OBJECTIVES 10 /// Maximum different objectives in achievement_db.yml
+#define MAX_ACHIEVEMENT_DEPENDENTS 20 /// Maximum different dependents in achievement_db.yml
 #define ACHIEVEMENT_NAME_LENGTH 50 /// Max Achievement Name length
 
 enum item_types {
@@ -164,6 +171,43 @@ enum item_types {
 	IT_CASH = 18,
 	IT_MAX
 };
+
+/// Monster mode definitions to clear up code reading. [Skotlex]
+enum e_mode {
+	MD_NONE					= 0x0000000,
+	MD_CANMOVE				= 0x0000001,
+	MD_LOOTER				= 0x0000002,
+	MD_AGGRESSIVE			= 0x0000004,
+	MD_ASSIST				= 0x0000008,
+	MD_CASTSENSOR_IDLE		= 0x0000010,
+	MD_NORANDOM_WALK		= 0x0000020,
+	MD_NOCAST_SKILL			= 0x0000040,
+	MD_CANATTACK			= 0x0000080,
+	//FREE					= 0x0000100,
+	MD_CASTSENSOR_CHASE		= 0x0000200,
+	MD_CHANGECHASE			= 0x0000400,
+	MD_ANGRY				= 0x0000800,
+	MD_CHANGETARGET_MELEE	= 0x0001000,
+	MD_CHANGETARGET_CHASE	= 0x0002000,
+	MD_TARGETWEAK			= 0x0004000,
+	MD_RANDOMTARGET			= 0x0008000,
+	MD_IGNOREMELEE			= 0x0010000,
+	MD_IGNOREMAGIC			= 0x0020000,
+	MD_IGNORERANGED			= 0x0040000,
+	MD_MVP					= 0x0080000,
+	MD_IGNOREMISC			= 0x0100000,
+	MD_KNOCKBACK_IMMUNE		= 0x0200000,
+	MD_TELEPORT_BLOCK		= 0x0400000,
+	//FREE					= 0x0800000,
+	MD_FIXED_ITEMDROP		= 0x1000000,
+	MD_DETECTOR				= 0x2000000,
+	MD_STATUS_IMMUNE		= 0x4000000,
+	MD_SKILL_IMMUNE			= 0x8000000,
+};
+
+#define MD_MASK 0x000FFFF
+#define ATR_MASK 0x0FF0000
+#define CL_MASK 0xF000000
 
 // Questlog states
 enum quest_state {
@@ -260,12 +304,6 @@ enum e_skill_flag
 
 	//! NOTE: This flag be the last flag, and don't change the value if not needed!
 	SKILL_FLAG_REPLACED_LV_0 = 10, // temporary skill overshadowing permanent skill of level 'N - SKILL_FLAG_REPLACED_LV_0',
-};
-
-enum e_mmo_charstatus_opt {
-	OPT_NONE        = 0x0,
-	OPT_SHOW_EQUIP  = 0x1,
-	OPT_ALLOW_PARTY = 0x2,
 };
 
 struct s_skill {
@@ -411,7 +449,7 @@ struct s_elemental {
 	int elemental_id;
 	uint32 char_id;
 	short class_;
-	int mode;
+	enum e_mode mode;
 	int hp, sp, max_hp, max_sp, matk, atk, atk2;
 	short hit, flee, amotion, def, mdef;
 	int life_time;
@@ -526,7 +564,7 @@ struct mail_message {
 	char dest_name[NAME_LENGTH];    //receiver nickname
 	char title[MAIL_TITLE_LENGTH];
 	char body[MAIL_BODY_LENGTH];
-	int type; // enum mail_inbox_type
+	enum mail_inbox_type type;
 	time_t scheduled_deletion;
 
 	mail_status status;
