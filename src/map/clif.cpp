@@ -1440,8 +1440,8 @@ int clif_spawn(struct block_list *bl)
 		{
 			TBL_PC *sd = ((TBL_PC*)bl);
 
-			clif_sendauras(sd, SELF, 1);    //Aura System
-			clif_sendauras(sd, SELF, 2);    //Aura System
+			clif_sendauras(sd, SELF, 1);
+			clif_sendauras(sd, SELF, 2);
 
 			if (sd->spiritball > 0)
 				clif_spiritball(&sd->bl);
@@ -18191,7 +18191,7 @@ void clif_sendauras(struct map_session_data *sd, enum send_target target, short 
 		sd->status.option&OPTION_CHASEWALK || 
 		sd->status.option&OPTION_CLOAK || 
 		sd->status.option&OPTION_INVISIBLE || 
-		sd->vd.class_ == INVISIBLE_CLASS)	// Are these needed?
+		sd->vd.class_ == JT_INVISIBLE)
 		return;
 
 	if (effect > 0)
@@ -18211,7 +18211,7 @@ void clif_sendaurastoone(struct map_session_data *sd, struct map_session_data *d
 		sd->status.option&OPTION_CHASEWALK || 
 		sd->status.option&OPTION_CLOAK || 
 		sd->status.option&OPTION_INVISIBLE || 
-		sd->vd.class_ == INVISIBLE_CLASS)	// Are these needed?
+		sd->vd.class_ == JT_INVISIBLE)
 		return;
 	
 	if (effect1 > 0)
@@ -18220,9 +18220,9 @@ void clif_sendaurastoone(struct map_session_data *sd, struct map_session_data *d
 		clif_specialeffecttoone2(&sd->bl, &dsd->bl, effect2);
 }
 
-/*==========================================
- * Aura System
- *------------------------------------------*/
+///*==========================================
+// * Aura System
+// *------------------------------------------*/
 void clif_specialeffecttoone1(struct block_list *bl, struct block_list *dst, int effect)
 {
 	struct map_session_data *sd = (struct map_session_data *)dst;
@@ -18243,10 +18243,10 @@ void clif_specialeffecttoone2(struct block_list *bl, struct block_list *dst, int
 	WFIFOL(sd->fd,6) = type;
 	WFIFOSET(sd->fd, packet_len(0x1f3));
 }
-
-/*==========================================
- * Aura System
- *------------------------------------------*/
+//
+///*==========================================
+// * Aura System
+// *------------------------------------------*/
 void clif_getareachar_char2(struct map_session_data* sd, struct block_list *bl)
 {
 	map_foreachinarea(clif_insight2, bl->m, bl->x-AREA_SIZE, bl->y-AREA_SIZE, bl->x+AREA_SIZE, bl->y+AREA_SIZE, BL_PC, bl);

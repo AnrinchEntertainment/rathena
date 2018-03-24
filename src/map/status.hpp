@@ -837,8 +837,6 @@ enum sc_type : int16 {
 	SC_DORAM_FLEE2,
 	SC_DORAM_SVSP,
 
-	SC_FALLEN_ANGEL,
-
 	SC_CHEERUP,
 	SC_DRESSUP,
 
