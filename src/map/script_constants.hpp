@@ -3445,6 +3445,7 @@
 	export_constant(RDMOPTG_ACCESSORY);
 	export_constant(RDMOPTG_GARMENT);
 	export_constant(RDMOPTG_SHOES);
+	export_constant(RDMOPTG_ARMOR);
 	export_constant(RDMOPTG_SHIELD);
 	export_constant(RDMOPTG_DAGGERS_1);
 	export_constant(RDMOPTG_DAGGERS_2);
