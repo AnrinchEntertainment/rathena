@@ -1737,13 +1737,22 @@ struct s_random_opt_group *itemdb_randomopt_group_exists(int id) {
  **/
 static bool itemdb_read_randomopt_group(char* str[], int columns, int current) {
 	int id = 0, i;
+#ifndef USE_RANDOMOPT_DROP_MEMORY_EFFICENT
 	unsigned short rate = (unsigned short)strtoul(str[1], NULL, 10);
+#else
+	uint32 rate = (uint32)strtoul(str[1], NULL, 10);
+#endif
+
 	struct s_random_opt_group *g = NULL;
 
 	if (!script_get_constant(str[0], &id)) {
 		ShowError("itemdb_read_randomopt_group: Invalid ID for Random Option Group '%s'.\n", str[0]);
 		return false;
 	}
+
+	//if (id != RDMOPTG_DAGGERS_1) {
+	//	return false;
+	//}
 
 	if ((columns-2)%3 != 0) {
 		ShowError("itemdb_read_randomopt_group: Invalid column entries '%d'.\n", columns);
@@ -1755,27 +1764,60 @@ static bool itemdb_read_randomopt_group(char* str[], int columns, int current) {
 		g->id = id;
 		g->total = 0;
 		g->entries = NULL;
+#ifdef USE_RANDOMOPT_DROP_MEMORY_EFFICENT
+		g->count = 0;
+#endif
 		uidb_put(itemdb_randomopt_group, g->id, g);
 	}
 
+#ifndef USE_RANDOMOPT_DROP_MEMORY_EFFICENT
 	RECREATE(g->entries, struct s_random_opt_group_entry, g->total + rate);
 
 	for (i = g->total; i < (g->total + rate); i++) {
 		int j, k;
 		memset(&g->entries[i].option, 0, sizeof(g->entries[i].option));
-		for (j = 0, k = 2; k < columns && j < MAX_ITEM_RDM_OPT; k+=3) {
+		for (j = 0, k = 2; k < columns && j < MAX_ITEM_RDM_OPT; k += 3) {
 			int randid = 0;
 			if (!script_get_constant(str[k], &randid) || !itemdb_randomopt_exists(randid)) {
-				ShowError("itemdb_read_randomopt_group: Invalid random group id '%s' in column %d!\n", str[k], k+1);
+				ShowError("itemdb_read_randomopt_group: Invalid random group id '%s' in column %d!\n", str[k], k + 1);
 				continue;
 			}
 			g->entries[i].option[j].id = randid;
-			g->entries[i].option[j].value = (short)strtoul(str[k+1], NULL, 10);
-			g->entries[i].option[j].param = (char)strtoul(str[k+2], NULL, 10);
+			g->entries[i].option[j].value = (short)strtoul(str[k + 1], NULL, 10);
+			g->entries[i].option[j].param = (char)strtoul(str[k + 2], NULL, 10);
 			j++;
 		}
 	}
+
 	g->total += rate;
+#else
+	RECREATE(g->entries, struct s_random_opt_group_entry, g->count + 1);
+	
+	int j, k;
+	memset(&g->entries[g->count].option, 0, sizeof(g->entries[g->count].option));
+	for (j = 0, k = 2; k < columns && j < MAX_ITEM_RDM_OPT; k += 3) {
+		int randid = 0;
+		if (!script_get_constant(str[k], &randid) || !itemdb_randomopt_exists(randid)) {
+			ShowError("itemdb_read_randomopt_group: Invalid random group id '%s' in column %d!\n", str[k], k + 1);
+			continue;
+		}
+		g->entries[g->count].option[j].id = randid;
+		g->entries[g->count].option[j].value = (short)strtoul(str[k + 1], NULL, 10);
+		g->entries[g->count].option[j].param = (char)strtoul(str[k + 2], NULL, 10);
+		j++;
+	}
+
+	// We don't want to overflow.
+	if (rate > UINT_MAX - g->total) {
+		ShowError("itemdb_read_randomopt_group: Integer overflow on total rate for '%s'\n", str[0]);
+	  return false;
+	}
+
+	g->total += rate;
+	g->entries[g->count].rate = g->total;
+	g->count++;
+#endif
+
 	return true;
 }
 

@@ -3485,8 +3485,8 @@ void map_flags_init(void)
 #endif
 
 		// adjustments
-		if( battle_config.pk_mode )
-			map[i].flag.pvp = 1; // make all maps pvp for pk_mode [Valaris]
+		if( battle_config.pk_mode && !(map[i].flag.gvg || map[i].flag.gvg_dungeon || map[i].flag.gvg_castle || map[i].flag.battleground))
+			map[i].flag.pvp = 1; // make all maps pvp for pk_mode that are allowed to be.
 
 		map_free_questinfo(i);
 	}

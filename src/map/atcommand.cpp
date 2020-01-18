@@ -8930,7 +8930,7 @@ ACMD_FUNC(stats)
 	output_table[13].value = sd->status.skill_point;
 	output_table[14].value = sd->change_level_2nd;
 	output_table[15].value = sd->change_level_3rd;
-
+	
 	sprintf(job_jobname, "Job - %s %s", job_name(sd->status.class_), "(level %d)");
 	sprintf(output, msg_txt(sd,53), sd->status.name); // '%s' stats:
 
@@ -8938,6 +8938,69 @@ ACMD_FUNC(stats)
 
 	for (i = 0; output_table[i].format != NULL; i++) {
 		sprintf(output, output_table[i].format, output_table[i].value);
+		clif_displaymessage(fd, output);
+	}
+
+	return 0;
+}
+
+ACMD_FUNC(battlestats)
+{
+	char output[CHAT_SIZE_MAX];
+	int i;
+	struct {
+		const char* format;
+		int value1;
+		int value2;
+	} output_table[] = {
+		{ "Hp - %d / %d", 0 },
+		{ "Sp - %d / %d", 0 },
+		{ "Str - %3d + %3d", 0, 0 },
+		{ "Agi - %3d + %3d", 0, 0 },
+		{ "Vit - %3d + %3d", 0, 0 },
+		{ "Int - %3d + %3d", 0, 0 },
+		{ "Dex - %3d + %3d", 0, 0 },
+		{ "Luk - %3d + %3d", 0, 0 },
+		/*{ "Atk - %3d + %3d", 0, 0 },
+		{ "Matk - %3d + %3d", 0, 0 },*/
+		{ NULL, 0, 0 }
+	};
+
+	memset(output, '\0', sizeof(output));
+
+	//direct array initialization with variables is not standard C compliant.
+	output_table[0].value1 = sd->battle_status.hp;
+	output_table[0].value2 = sd->battle_status.max_hp;
+
+	output_table[1].value1 = sd->battle_status.sp;
+	output_table[1].value2 = sd->battle_status.max_sp;
+
+	output_table[2].value1 = sd->status.str;
+	output_table[2].value2 = sd->battle_status.str;
+
+	output_table[3].value1 = sd->status.agi;
+	output_table[3].value2 = sd->battle_status.agi;
+
+	output_table[4].value1 = sd->status.vit;
+	output_table[4].value2 = sd->battle_status.vit;
+
+	output_table[5].value1 = sd->status.int_;
+	output_table[5].value2 = sd->battle_status.int_;
+
+	output_table[6].value1 = sd->status.dex;
+	output_table[6].value2 = sd->battle_status.dex;
+	
+	output_table[7].value1 = sd->status.luk;
+	output_table[7].value2 = sd->battle_status.luk;
+
+	//output_table[8].value1 = sd->battle_status.batk;
+	//output_table[8].value2 = sd->battle_status.matk_min;
+
+	//output_table[9].value1 = sd->status.luk;
+	//output_table[9].value2 = sd->battle_status.luk;
+
+	for (i = 0; output_table[i].format != NULL; i++) {
+		sprintf(output, output_table[i].format, output_table[i].value1, output_table[i].value2);
 		clif_displaymessage(fd, output);
 	}
 
@@ -10307,6 +10370,7 @@ void atcommand_basecommands(void) {
 		ACMD_DEF2("cartlist", itemlist),
 		ACMD_DEF2("itemlist", itemlist),
 		ACMD_DEF(stats),
+		ACMD_DEF(battlestats),
 		ACMD_DEF(delitem),
 		ACMD_DEF(charcommands),
 		ACMD_DEF(font),

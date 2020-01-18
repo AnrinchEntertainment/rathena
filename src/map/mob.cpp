@@ -2101,7 +2101,8 @@ void mob_setdropitem_option(struct item *itm, struct s_mob_drop *mobdrop) {
 	if (!itm || !mobdrop || mobdrop->randomopt_group == RDMOPTG_None)
 		return;
 	if ((g = itemdb_randomopt_group_exists(mobdrop->randomopt_group)) && g->total) {
-		int r = rnd()%g->total;
+		int r = rnd() % g->total;
+#ifndef USE_RANDOMOPT_DROP_MEMORY_EFFICENT
 		if (&g->entries[r]) {
 			if (*&g->entries[r].option->id == RDMOPT_EMPTY) {
 				return;
@@ -2109,6 +2110,17 @@ void mob_setdropitem_option(struct item *itm, struct s_mob_drop *mobdrop) {
 			memcpy(&itm->option, &g->entries[r], sizeof(itm->option));
 			return;
 		}
+#else
+		for (int i = 0; i < g->count; i++) {
+			if (r < g->entries[i].rate) {
+				if (g->entries[i].option->id == RDMOPT_EMPTY) {
+					return;
+				}
+				memcpy(&itm->option, &g->entries[i].option, sizeof(itm->option));
+				return;
+			}
+		}
+#endif
 	}
 }
 
