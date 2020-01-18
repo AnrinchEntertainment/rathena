@@ -1,0 +1,60 @@
+-	script	FloatingRates	-1,{
+OnInit:
+  set $floatingrate, rand(0,23);
+  set $defaultbrate,5000;//my server rate is 5000
+  set $defaultjrate,5000;//my server rate is 5000
+  set $defaultdrate,10000;//my server common item drop rate is 10000
+  set $defaultccdrate,100000;//my server common card drop rate is 100000
+  set $defaultcbdrate,30000;//my server card boss rate is 30000
+end;
+
+OnMinute00:
+  if (gettime(3) != $floatingrate) end;
+  set $floatingrate, rand(0,23);
+  set $@brate,rand(7500,10000);// Raise by 50% - 100% from default
+  set $@jrate,rand(7500,10000);// Raise by 50% - 100% from default
+  set $@drate,rand(15000,20000);// Raise by 50% - 100% from default
+  set $@ccdrate,rand(150000,200000);// Raise by 50% - 100% from default
+  set $@cbdrate,rand(37500,45000);// Raise by 25% - 50% from default
+  //Base exp
+  setbattleflag("base_exp_rate",$@brate);
+  //Job exp
+  setbattleflag("job_exp_rate",$@jrate);
+  //Drops
+  setbattleflag("item_rate_common",$@drate);
+  setbattleflag("item_rate_heal",$@drate);
+  setbattleflag("item_rate_use",$@drate);
+  setbattleflag("item_rate_equip",$@drate);
+  setbattleflag("item_rate_card",$@ccdrate);
+  setbattleflag("item_rate_card_boss",$@cbdrate);
+  announce "ADMINS PROUDLY PRESENTS!",bc_all;
+  sleep 3000;
+  announce "Super Rates Event Time!!!",bc_all;
+  sleep 3000;
+  announce "LOOK! THE RATES CHANGED!: Base:"+($@brate/100)+"x Job:"+($@jrate/100)+"x Drop:"+($@drate/100)+"x",bc_all;
+  sleep 3000;
+  announce "Work hard and happy hunting this lasts 1 hour!!!",bc_all;
+  initnpctimer;
+  set .Event,1;
+  atcommand "@reloadmobdb";
+  end;
+
+// After 1 hour.
+OnTimer3600000:
+  set .Event,0;
+  setbattleflag "base_exp_rate",$defaultbrate;
+  setbattleflag "job_exp_rate",$defaultjrate;
+  setbattleflag("item_rate_common",$defaultdrate);
+  setbattleflag("item_rate_heal",$defaultdrate);
+  setbattleflag("item_rate_use",$defaultdrate);
+  setbattleflag("item_rate_equip",$defaultdrate);
+  setbattleflag("item_rate_card",$defaultccdrate);
+  setbattleflag("item_rate_card_boss",$defaultcbdrate);
+  atcommand "@reloadmobdb";
+  announce "Rates Changed Back to normal!",bc_all;
+end;
+
+OnPcLoginEvent:
+  if (.Event == 1) dispbottom "Super rates active: Base:"+($@brate/100)+"x Job:"+($@jrate/100)+"x Drop:"+($@drate/100)+"x";
+end;
+}
